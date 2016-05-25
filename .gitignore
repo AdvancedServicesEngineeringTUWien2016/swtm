@@ -1,0 +1,11 @@
+.metadata/
+.project
+.settings/
+.classpath
+.factorypath
+*.iml
+.idea/
+target/
+*/.DS_Store
+*/target/generated
+Thumbs.db

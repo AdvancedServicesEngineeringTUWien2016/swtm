@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+
+    <persistence-unit name="notificationPU">
+        <jta-data-source>java:jboss/datasources/NotificationDS</jta-data-source>
+        <mapping-file>META-INF/notification-entities.xml</mapping-file>
+
+    </persistence-unit>
+
+</persistence>
