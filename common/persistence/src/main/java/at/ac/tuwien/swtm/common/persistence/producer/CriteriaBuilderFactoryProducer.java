@@ -1,4 +1,4 @@
-package at.ac.tuwien.swtm.analytics.webapp.producer;
+package at.ac.tuwien.swtm.common.persistence.producer;
 
 import com.blazebit.persistence.Criteria;
 import com.blazebit.persistence.CriteriaBuilderFactory;

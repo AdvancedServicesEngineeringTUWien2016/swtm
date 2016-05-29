@@ -1,6 +1,7 @@
 package at.ac.tuwien.swtm.analytics.model;
 
 import at.ac.tuwien.swtm.common.model.BaseEntity;
+import at.ac.tuwien.swtm.common.model.Point;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

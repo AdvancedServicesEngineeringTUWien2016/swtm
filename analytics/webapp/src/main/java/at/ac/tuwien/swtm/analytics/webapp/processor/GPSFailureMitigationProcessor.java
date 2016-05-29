@@ -1,12 +1,11 @@
 package at.ac.tuwien.swtm.analytics.webapp.processor;
 
+import at.ac.tuwien.swtm.analytics.event.GPSConflict;
+import at.ac.tuwien.swtm.analytics.event.SensorFailure;
+import at.ac.tuwien.swtm.analytics.event.SensorType;
 import at.ac.tuwien.swtm.analytics.model.Wastebin;
 import at.ac.tuwien.swtm.analytics.model.WastebinMoment;
-import at.ac.tuwien.swtm.analytics.webapp.event.GPSConflict;
-import at.ac.tuwien.swtm.analytics.webapp.event.GPSFailure;
-import at.ac.tuwien.swtm.analytics.webapp.service.WastebinDataService;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -19,22 +18,24 @@ import javax.inject.Inject;
 public class GPSFailureMitigationProcessor {
 
     @Inject
-    private Event<GPSFailure> gpsFailureEvent;
+    private Event<SensorFailure> sensorFailureEvent;
 
     @Inject
     private Event<GPSConflict> gpsConflictEvent;
 
-    public void process(WastebinMoment wastebinMoment) {
+    public void process(Exchange exchange) {
+        WastebinMoment wastebinMoment = (WastebinMoment) exchange.getIn().getBody();
         Wastebin wastebin = wastebinMoment.getWastebin();
         if (wastebinMoment.getLocation() == null) {
             if (wastebin.getFixedLocation() == null) {
-                gpsFailureEvent.fire(new GPSFailure(wastebin.getName()));
+                sensorFailureEvent.fire(new SensorFailure(wastebin.getId(), wastebin.getName(), SensorType.GPS));
+                exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);
             } else {
                 wastebinMoment.setLocation(wastebin.getFixedLocation());
             }
         } else {
             if (wastebin.getFixedLocation() != null && !wastebinMoment.getLocation().equals(wastebin.getFixedLocation())) {
-                gpsConflictEvent.fire(new GPSConflict(wastebin.getName()));
+                gpsConflictEvent.fire(new GPSConflict(wastebin.getId(), wastebin.getName()));
             }
         }
     }

@@ -1,4 +1,4 @@
-package at.ac.tuwien.swtm.analytics.model;
+package at.ac.tuwien.swtm.common.model;
 
 import javax.persistence.Embeddable;
 

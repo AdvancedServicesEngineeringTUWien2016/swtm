@@ -15,6 +15,7 @@
         <module>mainspring-client</module>
         <module>webapp</module>
         <module>model</module>
+        <module>event</module>
     </modules>
 
 

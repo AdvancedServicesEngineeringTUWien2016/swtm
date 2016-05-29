@@ -1,12 +1,17 @@
 package at.ac.tuwien.swtm.analytics.webapp;
 
+import at.ac.tuwien.swtm.analytics.event.GPSConflict;
+import at.ac.tuwien.swtm.analytics.event.SensorFailure;
 import at.ac.tuwien.swtm.analytics.mainspring.client.ClientProducer;
-import at.ac.tuwien.swtm.analytics.mainspring.client.adapter.*;
+import at.ac.tuwien.swtm.analytics.mainspring.client.adapter.DeviceDataAdapter;
+import at.ac.tuwien.swtm.analytics.mainspring.client.adapter.DeviceDataListAdapterExt;
 import at.ac.tuwien.swtm.analytics.mainspring.client.admin.DevicesResource;
 import at.ac.tuwien.swtm.analytics.mainspring.client.retrieval.RestRetriever;
 import at.ac.tuwien.swtm.analytics.webapp.config.AnalyticsConfiguration;
+import at.ac.tuwien.swtm.analytics.webapp.processor.FillingDegreeValidator;
 import at.ac.tuwien.swtm.analytics.webapp.processor.GPSFailureMitigationProcessor;
 import at.ac.tuwien.swtm.analytics.webapp.processor.MainspringDataProcessor;
+import at.ac.tuwien.swtm.analytics.webapp.processor.PayloadValidator;
 import at.ac.tuwien.swtm.analytics.webapp.service.WastebinDataService;
 import at.ac.tuwien.swtm.common.config.api.CommonConfiguration;
 import io.fabric8.annotations.ServiceName;
@@ -15,6 +20,7 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.cdi.CdiEventEndpoint;
 import org.apache.camel.cdi.ContextName;
 import org.apache.camel.component.cxf.common.message.CxfConstants;
 import org.apache.cxf.jaxrs.impl.UriInfoImpl;
@@ -49,6 +55,12 @@ public class CamelRouteConfiguration extends RouteBuilder {
     @Inject
     private AnalyticsConfiguration analyticsConfiguration;
 
+    @Inject
+    private CdiEventEndpoint<GPSConflict> gpsConflictEventEndpoint;
+
+    @Inject
+    private CdiEventEndpoint<SensorFailure> sensorFailureEventEndpoint;
+
     @Override
     public void configure() throws Exception {
         getContext().setTracing(true);
@@ -73,8 +85,15 @@ public class CamelRouteConfiguration extends RouteBuilder {
                 .bean(MainspringDataProcessor.class, "process")
                 .split(body())
                 .bean(GPSFailureMitigationProcessor.class, "process")
+                .bean(PayloadValidator.class, "validate")
+                .bean(FillingDegreeValidator.class, "validate")
                 .bean(WastebinDataService.class, "persistWastebinMoment");
 
+        from(gpsConflictEventEndpoint)
+                .to("activemq:queue:GPSConflictEventQueue?brokerURL=tcp://localhost:61616");
+
+        from(sensorFailureEventEndpoint)
+                .to("activemq:queue:SensorFailureEventQueue?brokerURL=tcp://localhost:61616");
     }
 
     private String getMainspringUrl() {

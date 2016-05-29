@@ -14,6 +14,7 @@
     <modules>
         <module>model</module>
         <module>config</module>
+        <module>persistence</module>
     </modules>
 
 

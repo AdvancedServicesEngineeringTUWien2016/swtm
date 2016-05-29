@@ -15,6 +15,7 @@
         <module>model</module>
         <module>webapp</module>
         <module>rest-api</module>
+        <module>client</module>
     </modules>
 
 

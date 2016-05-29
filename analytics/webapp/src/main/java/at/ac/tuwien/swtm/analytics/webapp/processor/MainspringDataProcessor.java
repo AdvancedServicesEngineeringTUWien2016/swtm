@@ -27,7 +27,7 @@ public class MainspringDataProcessor {
     @Inject
     private WastebinDataService wastebinDataService;
 
-    public void process(Exchange exchange) throws Exception {
+    public void process(Exchange exchange) {
         DeviceDataListAdapter deviceData = (DeviceDataListAdapter) exchange.getIn().getBody();
 
         List<WastebinMoment> wastebinMoments = new ArrayList<>();
