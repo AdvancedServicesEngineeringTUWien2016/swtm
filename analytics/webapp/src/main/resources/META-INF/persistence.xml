@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
-
-    <persistence-unit name="notificationPU">
-        <jta-data-source>java:jboss/datasources/NotificationDS</jta-data-source>
-        <mapping-file>META-INF/notification-entities.xml</mapping-file>
+    <persistence-unit name="analyticsPU">
+        <jta-data-source>java:jboss/datasources/AnalyticsDS</jta-data-source>
+        <mapping-file>META-INF/analytics-entities.xml</mapping-file>
 
         <properties>
             <property name="hibernate.hbm2ddl.auto" value="create"/>
         </properties>
     </persistence-unit>
-
 </persistence>

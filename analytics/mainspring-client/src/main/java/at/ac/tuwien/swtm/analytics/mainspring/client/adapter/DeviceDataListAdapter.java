@@ -29,7 +29,6 @@ public class DeviceDataListAdapter {
         
     public DeviceDataListAdapter() {
     }
-    
 
     @XmlElement(name = "device")
     @JsonProperty("device")

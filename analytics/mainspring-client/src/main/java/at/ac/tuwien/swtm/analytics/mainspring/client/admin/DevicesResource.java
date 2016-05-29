@@ -19,13 +19,14 @@ import at.ac.tuwien.swtm.analytics.mainspring.client.adapter.DeviceDataListAdapt
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 @Path("/admin/devices/")
 public interface DevicesResource {
 
     @GET
-    @Produces({"application/json"})
+    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     DeviceDataListAdapterExt get(@QueryParam("apikey") String apikey,
                                         @QueryParam("from") @DefaultValue("") String from,
                                         @QueryParam("to") @DefaultValue("") String to,

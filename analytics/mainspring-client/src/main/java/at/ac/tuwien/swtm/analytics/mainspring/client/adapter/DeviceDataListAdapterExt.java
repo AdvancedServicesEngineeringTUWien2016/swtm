@@ -31,11 +31,14 @@ public class DeviceDataListAdapterExt extends DeviceDataListAdapter {
     public DeviceDataListAdapterExt() {
     }
 
-    public boolean isSuccess() {
+    @XmlElement(name = "success")
+    @JsonProperty("success")
+    public boolean getSuccess() {
         return success;
     }
 
     public void setSuccess(boolean success) {
         this.success = success;
     }
+
 }

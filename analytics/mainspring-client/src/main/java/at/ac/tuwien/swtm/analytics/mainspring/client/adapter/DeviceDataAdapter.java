@@ -43,7 +43,7 @@ public class DeviceDataAdapter {
         this.name = name;
     }
     
-    @XmlElement(name = "adapter")
+    @XmlElement(name = "model")
     @JsonProperty("model")
     public String getModel() {
         return model;

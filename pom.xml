@@ -26,6 +26,8 @@
         <version.blaze-persistence>1.1.0</version.blaze-persistence>
         <version.resteasy>3.0.14.Final</version.resteasy>
         <version.fabric8>2.2.96</version.fabric8>
+        <version.camel>2.17.0</version.camel>
+        <version.cxf>3.1.5</version.cxf>
 
         <!-- **************** -->
         <!-- Plugins versions -->
@@ -103,11 +105,35 @@
                         <artifactId>hibernate-entitymanager</artifactId>
                     </exclusion>
                 </exclusions>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-core-api</artifactId>
+                <version>${version.blaze-persistence}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-core-impl</artifactId>
+                <version>${version.blaze-persistence}</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>com.blazebit</groupId>
                 <artifactId>blaze-persistence-integration-entity-view-cdi</artifactId>
                 <version>${version.blaze-persistence}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-entity-view-api</artifactId>
+                <version>${version.blaze-persistence}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.blazebit</groupId>
+                <artifactId>blaze-persistence-entity-view-impl</artifactId>
+                <version>${version.blaze-persistence}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Fabric8 dependencies -->
@@ -118,12 +144,42 @@
                 <version>${version.fabric8}</version>
             </dependency>
 
+            <!-- Camel dependencies -->
+
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-core</artifactId>
+                <version>${version.camel}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-cdi</artifactId>
+                <version>${version.camel}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-cxf</artifactId>
+                <version>${version.camel}</version>
+                <scope>provided</scope>
+            </dependency>
+
             <!-- Resteasy dependencies -->
 
             <dependency>
                 <groupId>org.jboss.resteasy</groupId>
                 <artifactId>resteasy-client</artifactId>
                 <version>${version.resteasy}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- CXF dependencies -->
+
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-rs-extension-providers</artifactId>
+                <version>${version.cxf}</version>
                 <scope>provided</scope>
             </dependency>
 
