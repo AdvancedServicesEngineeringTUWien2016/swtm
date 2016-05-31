@@ -12,6 +12,7 @@ public class VehicleRepresentation {
     private Long id;
     private String description;
     private BigDecimal capacity;
+    private BigDecimal range;
     private Double longitude;
     private Double latitude;
 
@@ -37,6 +38,14 @@ public class VehicleRepresentation {
 
     public void setCapacity(BigDecimal capacity) {
         this.capacity = capacity;
+    }
+
+    public BigDecimal getRange() {
+        return range;
+    }
+
+    public void setRange(BigDecimal range) {
+        this.range = range;
     }
 
     public Double getLongitude() {
