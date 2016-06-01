@@ -32,6 +32,7 @@ public class VehiclesResourceImpl implements VehiclesResource {
                     vehicleRepresentation.setId(vehicle.getId());
                     vehicleRepresentation.setDescription(vehicle.getDescription());
                     vehicleRepresentation.setCapacity(vehicle.getCapacity());
+                    vehicleRepresentation.setRange(vehicle.getRange());
                     vehicleRepresentation.setLatitude(vehicle.getLocation().getLatitude());
                     vehicleRepresentation.setLongitude(vehicle.getLocation().getLongitude());
                     return vehicleRepresentation;
@@ -43,6 +44,7 @@ public class VehiclesResourceImpl implements VehiclesResource {
         Vehicle vehicle = new Vehicle();
         vehicle.setId(vehicleRepresentation.getId());
         vehicle.setCapacity(vehicleRepresentation.getCapacity());
+        vehicle.setRange(vehicleRepresentation.getRange());
         vehicle.setDescription(vehicleRepresentation.getDescription());
         vehicle.getLocation().setLatitude(vehicleRepresentation.getLatitude());
         vehicle.getLocation().setLongitude(vehicleRepresentation.getLongitude());

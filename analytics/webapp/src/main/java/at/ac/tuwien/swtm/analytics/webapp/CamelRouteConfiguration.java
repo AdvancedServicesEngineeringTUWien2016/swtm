@@ -63,7 +63,7 @@ public class CamelRouteConfiguration extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        getContext().setTracing(true);
+//        getContext().setTracing(true);
 
         from("timer://sensorFetch?fixedRate=true&period=5s")
                 .setExchangePattern(ExchangePattern.InOut)

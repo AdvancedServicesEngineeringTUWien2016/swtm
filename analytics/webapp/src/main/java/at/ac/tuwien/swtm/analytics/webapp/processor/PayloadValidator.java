@@ -24,7 +24,7 @@ public class PayloadValidator {
 
     public void validate(Exchange exchange) {
         WastebinMoment wastebinMoment = (WastebinMoment) exchange.getIn().getBody();
-        if (wastebinMoment.getPayload().compareTo(payloadThreshold) > 0) {
+        if (wastebinMoment.getPayload() == null || wastebinMoment.getPayload().compareTo(payloadThreshold) > 0) {
             Wastebin wastebin = wastebinMoment.getWastebin();
             sensorFailureEvent.fire(new SensorFailure(wastebin.getId(), wastebin.getName(), SensorType.PAYLOAD));
             exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);

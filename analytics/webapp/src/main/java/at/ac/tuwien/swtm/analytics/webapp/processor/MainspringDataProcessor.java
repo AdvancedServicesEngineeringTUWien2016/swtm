@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created
@@ -37,31 +38,31 @@ public class MainspringDataProcessor {
             wastebin.setName(deviceName);
 
             WastebinMoment wastebinMoment = new WastebinMoment();
+            wastebinMoment.setWastebin(wastebin);
             wastebinMoments.add(wastebinMoment);
-            for (SensorDataAdapter sensorDataAdapter : deviceDataAdapter.getSensors()) {
-                if (SensorConstants.WASTEBIN_SENSOR_NAME.equals(sensorDataAdapter.getName())) {
-                    for (AttributeDataAdapter attributeDataAdapter : sensorDataAdapter.getAttributes()) {
-                        if (!attributeDataAdapter.getMoments().isEmpty()) {
-                            MomentAdapter moment = attributeDataAdapter.getMoments().get(0);
-                            wastebinMoment.setWastebin(wastebin);
-                            wastebinMoment.setTimestamp(LocalDateTime.parse(moment.getTimestamp(), formatter));
-                            if (SensorConstants.FILLING_DEGREE_NAME.equals(attributeDataAdapter.getName())) {
-                                wastebinMoment.setFillingDegree(new BigDecimal(moment.getValue()));
-                            } else if (SensorConstants.PAYLOAD_NAME.equals(attributeDataAdapter.getName())) {
-                                wastebinMoment.setPayload(new BigDecimal(moment.getValue()));
-                            } else if (SensorConstants.LOCATION_NAME.equals(attributeDataAdapter.getName())) {
-                                String[] parts = moment.getValue().split("\\|");
-                                Double latitude = new Double(parts[0]);
-                                Double longitude = new Double(parts[0]);
 
-                                if (latitude < 0 || longitude < 0) {
-                                    wastebinMoment.setLocation(null);
-                                } else {
-                                    wastebinMoment.getLocation().setLatitude(latitude);
-                                    wastebinMoment.getLocation().setLongitude(longitude);
-                                }
+            Optional<SensorDataAdapter> sensorDataAdapter = deviceDataAdapter.getSensors().stream().filter(adapter -> SensorConstants.WASTEBIN_SENSOR_NAME.equals(adapter.getName())).findAny();
+            if (sensorDataAdapter.isPresent() && !sensorDataAdapter.get().getAttributes().isEmpty()) {
+                for (AttributeDataAdapter attributeDataAdapter : sensorDataAdapter.get().getAttributes()) {
+                    if (!attributeDataAdapter.getMoments().isEmpty()) {
+                        MomentAdapter moment = attributeDataAdapter.getMoments().get(0);
+                        wastebinMoment.setTimestamp(LocalDateTime.parse(moment.getTimestamp(), formatter));
+                        if (SensorConstants.FILLING_DEGREE_NAME.equals(attributeDataAdapter.getName())) {
+                            wastebinMoment.setFillingDegree(new BigDecimal(moment.getValue()));
+                        } else if (SensorConstants.PAYLOAD_NAME.equals(attributeDataAdapter.getName())) {
+                            wastebinMoment.setPayload(new BigDecimal(moment.getValue()));
+                        } else if (SensorConstants.LOCATION_NAME.equals(attributeDataAdapter.getName())) {
+                            String[] parts = moment.getValue().split("\\|");
+                            Double latitude = new Double(parts[1]);
+                            Double longitude = new Double(parts[0]);
 
+                            if (latitude < 0 || longitude < 0) {
+                                wastebinMoment.setLocation(null);
+                            } else {
+                                wastebinMoment.getLocation().setLatitude(latitude);
+                                wastebinMoment.getLocation().setLongitude(longitude);
                             }
+
                         }
                     }
                 }

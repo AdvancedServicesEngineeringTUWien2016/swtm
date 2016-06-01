@@ -1,5 +1,6 @@
 package at.ac.tuwien.swtm.analytics.rest.api.model;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -50,6 +51,7 @@ public class WastebinMomentRepresentation {
         this.latitude = latitude;
     }
 
+    @XmlJavaTypeAdapter(LocalDataTimeAdapter.class)
     public LocalDateTime getTimestamp() {
         return timestamp;
     }

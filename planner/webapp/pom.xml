@@ -39,6 +39,11 @@
             <version>0.6</version>
         </dependency>
         <dependency>
+            <groupId>com.google.maps</groupId>
+            <artifactId>google-maps-services</artifactId>
+            <version>0.1.14</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>planner-rest-api</artifactId>
             <version>${project.version}</version>

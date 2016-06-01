@@ -1,5 +1,6 @@
 package at.ac.tuwien.swtm.planner.webapp.task;
 
+import com.google.maps.model.DistanceMatrix;
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty;
 import org.optaplanner.core.api.domain.solution.PlanningSolution;
 import org.optaplanner.core.api.domain.solution.Solution;
@@ -18,13 +19,17 @@ import java.util.List;
 @PlanningSolution
 public class TransportationPlan implements Solution<BendableScore> {
 
-    private final List<Wastebin> wastebins;
-    private final List<Vehicle> vehicles;
+    private List<Wastebin> wastebins;
+    private List<Vehicle> vehicles;
     private BendableScore score;
+    private DistanceMatrix distanceMatrix;
 
-    public TransportationPlan(List<Wastebin> wastebins, List<Vehicle> vehicles) {
+    public TransportationPlan() { }
+
+    public TransportationPlan(List<Wastebin> wastebins, List<Vehicle> vehicles, DistanceMatrix distanceMatrix) {
         this.wastebins = wastebins;
         this.vehicles = vehicles;
+        this.distanceMatrix = distanceMatrix;
     }
 
     @ValueRangeProvider(id = "vehicleRange")

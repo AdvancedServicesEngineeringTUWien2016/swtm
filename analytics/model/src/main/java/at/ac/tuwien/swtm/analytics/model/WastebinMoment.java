@@ -52,7 +52,7 @@ public class WastebinMoment extends BaseEntity<Long> {
     }
 
     @NotNull
-    @Column(nullable = false, precision = 2)
+    @Column(nullable = false, scale = 2)
     public BigDecimal getFillingDegree() {
         return fillingDegree;
     }
@@ -62,7 +62,7 @@ public class WastebinMoment extends BaseEntity<Long> {
     }
 
     @NotNull
-    @Column(nullable = false, precision = 2)
+    @Column(nullable = false, scale = 2)
     public BigDecimal getPayload() {
         return payload;
     }

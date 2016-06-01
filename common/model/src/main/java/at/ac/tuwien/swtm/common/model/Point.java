@@ -9,14 +9,13 @@ import javax.persistence.Embeddable;
  */
 @Embeddable
 public class Point {
-    private Double longitude;
     private Double latitude;
+    private Double longitude;
 
-    public Double getLongitude() {
-        return longitude;
-    }
+    public Point() {}
 
-    public void setLongitude(Double longitude) {
+    public Point(Double latitude, Double longitude) {
+        this.latitude = latitude;
         this.longitude = longitude;
     }
 
@@ -27,4 +26,13 @@ public class Point {
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
 }

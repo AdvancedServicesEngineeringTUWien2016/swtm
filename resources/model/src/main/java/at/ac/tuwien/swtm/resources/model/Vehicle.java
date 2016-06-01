@@ -16,19 +16,10 @@ import java.math.BigDecimal;
  * on 29.05.2016.
  */
 public class Vehicle extends BaseEntity<Long> {
-    private BigDecimal capacity;
     private String description;
+    private BigDecimal capacity;
+    private BigDecimal range;
     private Point location;
-
-    @NotNull
-    @Column(nullable = false, precision = 2)
-    public BigDecimal getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(BigDecimal capacity) {
-        this.capacity = capacity;
-    }
 
     public String getDescription() {
         return description;
@@ -36,6 +27,26 @@ public class Vehicle extends BaseEntity<Long> {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @NotNull
+    @Column(nullable = false, scale = 2)
+    public BigDecimal getRange() {
+        return range;
+    }
+
+    public void setRange(BigDecimal range) {
+        this.range = range;
+    }
+
+    @NotNull
+    @Column(nullable = false, scale = 2)
+    public BigDecimal getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(BigDecimal capacity) {
+        this.capacity = capacity;
     }
 
     @Embedded

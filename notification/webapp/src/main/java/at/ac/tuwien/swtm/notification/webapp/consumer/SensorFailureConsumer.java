@@ -1,6 +1,5 @@
 package at.ac.tuwien.swtm.notification.webapp.consumer;
 
-import at.ac.tuwien.swtm.analytics.event.GPSConflict;
 import at.ac.tuwien.swtm.analytics.event.SensorFailure;
 import at.ac.tuwien.swtm.notification.webapp.service.NotificationService;
 
@@ -9,7 +8,9 @@ import javax.ejb.MessageDriven;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -22,17 +23,21 @@ import java.util.logging.Logger;
         @ActivationConfigProperty(propertyName = "destination", propertyValue = "SensorFailureEventQueue"),
         @ActivationConfigProperty(propertyName = "acknowledgeMode", propertyValue = "Auto-acknowledge")
 })
-public class SensorFailureConsumer {
+public class SensorFailureConsumer implements MessageListener {
     private static final Logger LOG = Logger.getLogger(SensorFailureConsumer.class.getName());
 
     @Inject
     private NotificationService notificationService;
 
-    public void onMessage(Message message) throws JMSException {
-        LOG.info("Received sensor failure message " + message.getJMSMessageID());
-        if (message instanceof ObjectMessage) {
-            SensorFailure sensorFailure = (SensorFailure) ((ObjectMessage) message).getObject();
-            notificationService.createSensorFailureNotification(sensorFailure.getWastebinId(), sensorFailure.getSensorType());
+    public void onMessage(Message message) {
+        try {
+            LOG.info("Received sensor failure message " + message.getJMSMessageID());
+            if (message instanceof ObjectMessage) {
+                SensorFailure sensorFailure = (SensorFailure) ((ObjectMessage) message).getObject();
+                notificationService.createSensorFailureNotification(sensorFailure.getWastebinId(), sensorFailure.getSensorType());
+            }
+        } catch(JMSException e) {
+            LOG.log(Level.SEVERE, null, e);
         }
     }
 }

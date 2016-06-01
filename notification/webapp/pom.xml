@@ -37,6 +37,11 @@
             <artifactId>analytics-event</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>common-persistence</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Blaze Persistence -->
 

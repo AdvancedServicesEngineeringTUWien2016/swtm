@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
 
-    <persistence-unit name="notificationPU">
+    <persistence-unit name="resourcesPU">
         <jta-data-source>java:jboss/datasources/ResourcesDS</jta-data-source>
         <mapping-file>META-INF/resources-entities.xml</mapping-file>
 

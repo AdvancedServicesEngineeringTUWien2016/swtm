@@ -22,7 +22,7 @@ public class FillingDegreeValidator {
 
     public void validate(Exchange exchange) {
         WastebinMoment wastebinMoment = (WastebinMoment) exchange.getIn().getBody();
-        if (wastebinMoment.getFillingDegree().compareTo(BigDecimal.ZERO) < 0 || wastebinMoment.getFillingDegree().compareTo(BigDecimal.ONE) > 0) {
+        if (wastebinMoment.getFillingDegree() == null || wastebinMoment.getFillingDegree().compareTo(BigDecimal.ZERO) < 0 || wastebinMoment.getFillingDegree().compareTo(BigDecimal.ONE) > 0) {
             Wastebin wastebin = wastebinMoment.getWastebin();
             sensorFailureEvent.fire(new SensorFailure(wastebin.getId(), wastebin.getName(), SensorType.FILLING_DEGREE));
             exchange.setProperty(Exchange.ROUTE_STOP, Boolean.TRUE);

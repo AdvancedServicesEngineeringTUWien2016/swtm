@@ -1,9 +1,11 @@
 package at.ac.tuwien.swtm.planner.webapp.task;
 
 import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentResource;
-import at.ac.tuwien.swtm.analytics.rest.api.model.WastebinMomentRepresentation;
 import at.ac.tuwien.swtm.resources.rest.api.VehiclesResource;
-import at.ac.tuwien.swtm.resources.rest.api.model.VehicleRepresentation;
+import com.google.maps.DistanceMatrixApi;
+import com.google.maps.DistanceMatrixApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.model.*;
 import org.optaplanner.core.api.solver.Solver;
 import org.optaplanner.core.api.solver.SolverFactory;
 
@@ -18,20 +20,28 @@ import java.util.stream.Collectors;
  */
 public class PlanningTask implements Runnable {
 
+    private static final SolverFactory<TransportationPlan> solverFactory;
+    static {
+        solverFactory = SolverFactory.createFromXmlResource(
+                "META-INF/transportationSolverConfig.xml");
+    }
     @Inject
     private VehiclesResource vehiclesResource;
 
     @Inject
     private WastebinMomentResource wastebinMomentResource;
 
+    private TransportationPlan solution;
+
     @Override
     public void run() {
-        SolverFactory<TransportationPlan> solverFactory = SolverFactory.createFromXmlResource(
-                "META-INF/transportationSolverConfig.xml");
         Solver<TransportationPlan> solver = solverFactory.buildSolver();
 
-        TransportationPlan solution = solver.solve(getProblem());
-        // we need to assign wastebins to vehicles
+        solution = solver.solve(getProblem());
+    }
+
+    public TransportationPlan getSolution() {
+        return solution;
     }
 
     private TransportationPlan getProblem() {
@@ -43,6 +53,35 @@ public class PlanningTask implements Runnable {
                 .map(Wastebin::fromWastebinRepresentation)
                 .collect(Collectors.toList());
 
-        return new TransportationPlan(wastebins, vehicles);
+        // TODO: only fetch matrix when wastebin locations change or vehicle locations change or if either is added
+        DistanceMatrix distanceMatrix = getDistanceMatrix(vehicles, wastebins);
+        return new TransportationPlan(wastebins, vehicles, distanceMatrix);
+
+    }
+
+    private DistanceMatrix getDistanceMatrix(List<Vehicle> vehicles, List<Wastebin> wastebins) {
+        List<LatLng> locations = vehicles.stream()
+                .map(vehicle -> new LatLng(vehicle.getLatitude(), vehicle.getLongitude()))
+                .collect(Collectors.toList());
+
+        locations.addAll(wastebins.stream()
+                .map(wastebin -> new LatLng(wastebin.getLatitude(), wastebin.getLongitude()))
+                .collect(Collectors.toList()));
+
+        LatLng[] locationsArray = locations.toArray(new LatLng[0]);
+
+        GeoApiContext geoContext = new GeoApiContext();
+        DistanceMatrixApiRequest distanceMatrixApiRequest = DistanceMatrixApi.newRequest(geoContext);
+        distanceMatrixApiRequest.origins(locationsArray);
+        distanceMatrixApiRequest.destinations(locationsArray);
+        distanceMatrixApiRequest.mode(TravelMode.DRIVING);
+        distanceMatrixApiRequest.trafficModel(TrafficModel.BEST_GUESS);
+        distanceMatrixApiRequest.units(Unit.METRIC);
+
+        try {
+            return distanceMatrixApiRequest.await();
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
