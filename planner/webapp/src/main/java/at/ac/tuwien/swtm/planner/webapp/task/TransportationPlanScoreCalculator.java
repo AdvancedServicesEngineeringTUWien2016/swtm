@@ -1,16 +1,16 @@
 package at.ac.tuwien.swtm.planner.webapp.task;
 
-import org.locationtech.spatial4j.context.SpatialContext;
-import org.locationtech.spatial4j.shape.Point;
-import org.locationtech.spatial4j.shape.impl.PointImpl;
+import com.google.maps.model.DistanceMatrixElement;
 import org.optaplanner.core.api.score.Score;
 import org.optaplanner.core.api.score.buildin.bendable.BendableScore;
-import org.optaplanner.core.api.score.buildin.bendablelong.BendableLongScore;
-import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
 import org.optaplanner.core.impl.score.director.easy.EasyScoreCalculator;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -61,21 +61,17 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
         Map<Vehicle, List<Wastebin>> routes = assignedWastebins.stream()
                 .collect(Collectors.groupingBy(Wastebin::getAssignedVehicle));
 
-        BigDecimal routeLengthSum = BigDecimal.ZERO;
+        long routeLengthSum = 0;
         for (Map.Entry<Vehicle, List<Wastebin>> route : routes.entrySet()) {
-            List<Point> points = route.getValue().stream()
-                    .map(wastebin -> new PointImpl(wastebin.getLatitude(), wastebin.getLongitude(), SpatialContext.GEO))
-                    .collect(Collectors.toList());
-            points.add(0, new PointImpl(route.getKey().getLatitude(), route.getKey().getLongitude(), SpatialContext.GEO));
-
-            BigDecimal routeLength = calculateRoundTripLength(points);
-            routeLengthSum = routeLengthSum.add(routeLength);
+            long routeDuration = aggregateRoute(transportationPlan.getObjectDistances(), route, row -> row.durationInTraffic.inSeconds, (a, b) -> a + b);
+            long routeLength = aggregateRoute(transportationPlan.getObjectDistances(), route, row -> row.distance.inMeters, (a, b) -> a + b);
+            routeLengthSum += routeDuration;
 
             BigDecimal routePayload = route.getValue().stream()
                     .map(Wastebin::getPayload)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            if (routeLength.compareTo(route.getKey().getRange()) > 0) {
+            if (routeLength > route.getKey().getRange().multiply(BigDecimal.valueOf(1000)).longValue()) {
                 // route is out of range for assigned vehicle
                 hardScore -= 1;
             }
@@ -89,19 +85,18 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
         return BendableScore.valueOf(new int[]{ hardScore }, new int[]{
                 maximumFillingDegree.multiply(BigDecimal.valueOf(-100)).intValue(),
                 payloadSum.intValue(),
-                routeLengthSum.intValue()
+                (int) routeLengthSum
         });
     }
 
-    private BigDecimal calculateRoundTripLength(List<Point> points) {
-        if (points.size() <= 1) {
-            return BigDecimal.ZERO;
+    private <T> T aggregateRoute(Map<Object, Map<Object, DistanceMatrixElement>> objectDistances, Map.Entry<Vehicle, List<Wastebin>> route, Function<DistanceMatrixElement, T> matrixElementSelector, BinaryOperator<T> combinator) {
+        List<Wastebin> wastebins = route.getValue();
+        T aggregation = matrixElementSelector.apply(objectDistances.get(route.getKey()).get(wastebins.get(0)));
+
+        for (int i = 0; i < wastebins.size() - 1; i++) {
+            aggregation = combinator.apply(aggregation, matrixElementSelector.apply(objectDistances.get(wastebins.get(i)).get(wastebins.get(i + 1))));
         }
-        BigDecimal length = BigDecimal.ZERO;
-        for (int i = 0; i < points.size() - 1; i++) {
-            length = length.add(BigDecimal.valueOf(SpatialContext.GEO.calcDistance(points.get(i), points.get(i + 1))));
-        }
-        return length.add(BigDecimal.valueOf(SpatialContext.GEO.calcDistance(points.get(points.size() - 1), points.get(0))));
+        return combinator.apply(aggregation, matrixElementSelector.apply(objectDistances.get(wastebins.get(wastebins.size() - 1)).get(route.getKey())));
     }
 
 }
