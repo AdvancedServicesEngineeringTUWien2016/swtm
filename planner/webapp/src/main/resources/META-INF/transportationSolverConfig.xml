@@ -9,12 +9,11 @@
         <bendableHardLevelsSize>1</bendableHardLevelsSize>
         <bendableSoftLevelsSize>3</bendableSoftLevelsSize>
         <easyScoreCalculatorClass>at.ac.tuwien.swtm.planner.webapp.task.TransportationPlanScoreCalculator</easyScoreCalculatorClass>
-        <!--<scoreDrl>org/optaplanner/examples/cloudbalancing/solver/cloudBalancingScoreRules.drl</scoreDrl>-->
     </scoreDirectorFactory>
 
     <!-- Optimization algorithms configuration -->
     <termination>
         <secondsSpentLimit>30</secondsSpentLimit>
-        <unimprovedMillisecondsSpentLimit>500</unimprovedMillisecondsSpentLimit>
+        <unimprovedMillisecondsSpentLimit>10000</unimprovedMillisecondsSpentLimit>
     </termination>
 </solver>

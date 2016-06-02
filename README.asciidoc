@@ -1,0 +1,9 @@
+# TODOS
+
+ . Notification display:
+   .. Sensor failure
+   .. GPS conflict
+ . Notification actions:
+   .. Set/remove fixed location for wastebin
+ . Hide routes
+ . Improve planning

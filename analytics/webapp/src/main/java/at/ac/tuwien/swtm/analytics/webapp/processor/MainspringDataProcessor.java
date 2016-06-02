@@ -53,8 +53,9 @@ public class MainspringDataProcessor {
                             wastebinMoment.setPayload(new BigDecimal(moment.getValue()));
                         } else if (SensorConstants.LOCATION_NAME.equals(attributeDataAdapter.getName())) {
                             String[] parts = moment.getValue().split("\\|");
-                            Double latitude = new Double(parts[1]);
-                            Double longitude = new Double(parts[0]);
+                            // we have to convert it like this because Mainspring is stupid
+                            Double latitude = Double.valueOf(parts[1]) / 10000.0;
+                            Double longitude = Double.valueOf(parts[0])  / 10000.0;
 
                             if (latitude < 0 || longitude < 0) {
                                 wastebinMoment.setLocation(null);

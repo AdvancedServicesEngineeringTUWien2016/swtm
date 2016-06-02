@@ -11,6 +11,7 @@ import javax.enterprise.concurrent.ContextService;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +34,20 @@ public class PlansResourceImpl implements PlansResource {
     public PlanRepresentation createNewPlan() {
 //        managedExecutorService.submit(planningTaskFactory.get());
         PlanningTask planningTask = planningTaskFactory.get();
-        planningTask.run();
+        try {
+            planningTask.run();
+        } catch(Exception e) {
+            throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
 
-        Map<Long, List<Long>> result = planningTask.getSolution().getWastebins().stream()
-                .filter(wastebin -> wastebin.getAssignedVehicle() != null)
-                .collect(Collectors.groupingBy(wastebin -> wastebin.getAssignedVehicle().getId(), Collectors.mapping(Wastebin::getId, Collectors.toList())));
+        if (planningTask.getSolution().getScore().isFeasible()) {
+            Map<Long, List<Long>> result = planningTask.getSolution().getWastebins().stream()
+                    .filter(wastebin -> wastebin.getVehicle() != null)
+                    .collect(Collectors.groupingBy(wastebin -> wastebin.getVehicle().getId(), Collectors.mapping(Wastebin::getId, Collectors.toList())));
 
-        return new PlanRepresentation(result);
+            return new PlanRepresentation(result);
+        } else {
+            return null;
+        }
     }
 }

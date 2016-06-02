@@ -9,13 +9,16 @@ import java.math.BigDecimal;
  * by Moritz Becker (moritz.becker@gmx.at)
  * on 30.05.2016.
  */
-public class Vehicle {
+public class Vehicle implements RouteComponent {
 
     private Long id;
     private BigDecimal capacity;
     private BigDecimal range;
     private Double longitude;
     private Double latitude;
+
+    // Shadow variables
+    private Wastebin nextWastebin;
 
     public Long getId() {
         return id;
@@ -57,6 +60,16 @@ public class Vehicle {
         this.latitude = latitude;
     }
 
+    @Override
+    public Wastebin getNextWastebin() {
+        return nextWastebin;
+    }
+
+    @Override
+    public void setNextWastebin(Wastebin nextWastebin) {
+        this.nextWastebin = nextWastebin;
+    }
+
     public static Vehicle fromVehicleRepresentation(VehicleRepresentation vehicleRepresentation) {
         Vehicle vehicle = new Vehicle();
         vehicle.setId(vehicleRepresentation.getId());
@@ -84,4 +97,8 @@ public class Vehicle {
         return id != null ? id.hashCode() : 0;
     }
 
+    @Override
+    public Vehicle getVehicle() {
+        return this;
+    }
 }

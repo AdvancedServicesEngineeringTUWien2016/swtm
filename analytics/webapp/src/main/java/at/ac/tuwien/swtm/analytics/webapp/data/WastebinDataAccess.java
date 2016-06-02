@@ -25,12 +25,12 @@ public class WastebinDataAccess {
 
     public List<WastebinMoment> getLatestWastebinMoments() {
         return cbf.create(em, WastebinMoment.class)
-                .fetch("wastebin")
-                .groupBy("id")
+                .innerJoinFetch("wastebin", "bin")
+                .groupBy("bin.id")
                 .having("timestamp").ge().all()
                     .from(WastebinMoment.class)
                     .select("timestamp")
-                    .where("id").eqExpression("OUTER(id)")
+                    .where("wastebin.id").eqExpression("OUTER(bin.id)")
                 .end()
                 .getResultList();
     }

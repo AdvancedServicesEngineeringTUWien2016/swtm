@@ -1,9 +1,10 @@
 package at.ac.tuwien.swtm.planner.webapp.task;
 
 import at.ac.tuwien.swtm.analytics.rest.api.model.WastebinMomentRepresentation;
-import at.ac.tuwien.swtm.resources.rest.api.model.VehicleRepresentation;
 import org.optaplanner.core.api.domain.entity.PlanningEntity;
+import org.optaplanner.core.api.domain.variable.AnchorShadowVariable;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
+import org.optaplanner.core.api.domain.variable.PlanningVariableGraphType;
 
 import java.math.BigDecimal;
 
@@ -12,15 +13,18 @@ import java.math.BigDecimal;
  * by Moritz Becker (moritz.becker@gmx.at)
  * on 30.05.2016.
  */
-@PlanningEntity
-public class Wastebin {
+public class Wastebin implements RouteComponent {
 
     private Long id;
-    private Vehicle assignedVehicle;
+    private RouteComponent previousRouteComponent;
     private Double longitude;
     private Double latitude;
     private BigDecimal payload;
     private BigDecimal fillingDegree;
+
+    // Shadow variables
+    private Wastebin nextWastebin;
+    private Vehicle vehicle;
 
     public Long getId() {
         return id;
@@ -30,13 +34,24 @@ public class Wastebin {
         this.id = id;
     }
 
-    @PlanningVariable(valueRangeProviderRefs = "vehicleRange")
-    public Vehicle getAssignedVehicle() {
-        return assignedVehicle;
+    @PlanningVariable(graphType = PlanningVariableGraphType.CHAINED, valueRangeProviderRefs = {"wastebinRange", "vehicleRange"})
+    public RouteComponent getPreviousRouteComponent() {
+        return previousRouteComponent;
     }
 
-    public void setAssignedVehicle(Vehicle assignedVehicle) {
-        this.assignedVehicle = assignedVehicle;
+    public void setPreviousRouteComponent(RouteComponent previousRouteComponent) {
+        this.previousRouteComponent = previousRouteComponent;
+    }
+
+    @AnchorShadowVariable(sourceVariableName = "previousRouteComponent")
+    @Override
+    public Vehicle getVehicle() {
+        return vehicle;
+//        return previousRouteComponent == null ? null : previousRouteComponent.getVehicle();
+    }
+
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 
     public Double getLongitude() {
@@ -69,6 +84,16 @@ public class Wastebin {
 
     public void setFillingDegree(BigDecimal fillingDegree) {
         this.fillingDegree = fillingDegree;
+    }
+
+    @Override
+    public Wastebin getNextWastebin() {
+        return nextWastebin;
+    }
+
+    @Override
+    public void setNextWastebin(Wastebin nextWastebin) {
+        this.nextWastebin = nextWastebin;
     }
 
     public static Wastebin fromWastebinRepresentation(WastebinMomentRepresentation wastebinMomentRepresentation) {

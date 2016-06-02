@@ -6,9 +6,10 @@ import org.optaplanner.core.api.score.buildin.bendable.BendableScore;
 import org.optaplanner.core.impl.score.director.easy.EasyScoreCalculator;
 
 import java.math.BigDecimal;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,15 +38,15 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
          * Soft constraints (with priorities):
          *  1. we want to minimize the maximum filling degree of all bins
          *  2. we want to maximize the amount of waste transported by all vehicles
-         *  3. we want to minimize the total route length
+         *  3. we want to minimize the total route duration
+         *  4. we want to use the smallest vehicles (= lowest capacities) if possible
          *
          * Other assumptions:
          *  - One wastebin is either emptied completely or it is not touched at all.
          */
-        List<Vehicle> vehicles = transportationPlan.getVehicles();
         List<Wastebin> wastebins = transportationPlan.getWastebins();
         List<Wastebin> assignedWastebins = wastebins.stream()
-                .filter(wastebin -> wastebin.getAssignedVehicle() != null)
+                .filter(wastebin -> wastebin.getVehicle() != null)
                 .collect(Collectors.toList());
         Set<Wastebin> unassignedWastebins = new HashSet<>(wastebins);
         unassignedWastebins.removeAll(assignedWastebins);
@@ -54,13 +55,14 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
                 .map(Wastebin::getFillingDegree)
                 .max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
 
-        BigDecimal payloadSum = assignedWastebins.stream()
+        BigDecimal wastePayloadSum = assignedWastebins.stream()
                 .map(Wastebin::getPayload)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Map<Vehicle, List<Wastebin>> routes = assignedWastebins.stream()
-                .collect(Collectors.groupingBy(Wastebin::getAssignedVehicle));
+                .collect(Collectors.groupingBy(Wastebin::getVehicle));
 
+        BigDecimal spareCapacity = BigDecimal.ZERO;
         long routeLengthSum = 0;
         for (Map.Entry<Vehicle, List<Wastebin>> route : routes.entrySet()) {
             long routeDuration = aggregateRoute(transportationPlan.getObjectDistances(), route, row -> row.durationInTraffic.inSeconds, (a, b) -> a + b);
@@ -80,12 +82,14 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
                 // payload on route is too high for vehicle
                 hardScore -= 1;
             }
+            spareCapacity = spareCapacity.add(route.getKey().getCapacity().subtract(routePayload));
         }
 
         return BendableScore.valueOf(new int[]{ hardScore }, new int[]{
                 maximumFillingDegree.multiply(BigDecimal.valueOf(-100)).intValue(),
-                payloadSum.intValue(),
-                (int) routeLengthSum
+                wastePayloadSum.intValue(),
+                (int) -routeLengthSum,
+                spareCapacity.multiply(BigDecimal.valueOf(-1)).intValue()
         });
     }
 

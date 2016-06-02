@@ -40,6 +40,7 @@ public class TransportationPlan implements Solution<BendableScore> {
         return vehicles;
     }
 
+    @ValueRangeProvider(id = "wastebinRange")
     @PlanningEntityCollectionProperty
     public List<Wastebin> getWastebins() {
         return wastebins;
