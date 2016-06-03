@@ -2,12 +2,13 @@ package at.ac.tuwien.swtm.analytics.webapp.service;
 
 import at.ac.tuwien.swtm.analytics.model.Wastebin;
 import at.ac.tuwien.swtm.analytics.model.WastebinMoment;
+import at.ac.tuwien.swtm.analytics.model.WastebinMomentState;
+import at.ac.tuwien.swtm.analytics.model.WastebinStateId;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class WastebinDataService {
     @Inject
     private CriteriaBuilderFactory cbf;
 
-    public void persistWastebinMoment(WastebinMoment wastebinMoment) {
+    public WastebinMoment persistWastebinMoment(WastebinMoment wastebinMoment) {
         Long existingMoments = cbf.create(em, Long.class)
                 .from(WastebinMoment.class, "moment")
                 .select("COUNT(*)")
@@ -37,23 +38,17 @@ public class WastebinDataService {
             if (wastebinMoment.getWastebin().getId() == null) {
                 wastebinMoment.setWastebin(getOrCreateWastebin(wastebinMoment.getWastebin().getName()));
             }
-            if (wastebinMoment.getFillingDegree() == null || wastebinMoment.getFillingDegree().compareTo(BigDecimal.ZERO) < 0 || wastebinMoment.getFillingDegree().compareTo(BigDecimal.ONE) > 0) {
-                throw new IllegalArgumentException("Filling degree invalid: " + wastebinMoment.getFillingDegree());
-            }
-            if (wastebinMoment.getLocation().getLatitude() == null || wastebinMoment.getLocation().getLongitude() == null) {
-                throw new NullPointerException("A location component is null");
-            }
-            if (wastebinMoment.getPayload() == null || wastebinMoment.getPayload().compareTo(BigDecimal.ZERO) < 0) {
-                throw new IllegalArgumentException("Payload invalid: " + wastebinMoment.getPayload());
-            }
             em.persist(wastebinMoment);
+            return wastebinMoment;
+        } else {
+            return null;
         }
     }
 
     public Wastebin getOrCreateWastebin(String name) {
         List<Wastebin> wastebins = cbf.create(em, Wastebin.class)
-            .where("name").eq(name)
-            .getResultList();
+                .where("name").eq(name)
+                .getResultList();
 
         Wastebin wastebin;
         if (wastebins.isEmpty()) {
@@ -64,5 +59,13 @@ public class WastebinDataService {
             wastebin = wastebins.get(0);
         }
         return wastebin;
+    }
+
+    public void updateWastebin(Wastebin wastebin) {
+        em.merge(wastebin);
+    }
+
+    public void saveWastebinMomentState(Long wastebinMomentId, WastebinMomentState.State state) {
+        em.persist(new WastebinMomentState(new WastebinStateId(wastebinMomentId, state)));
     }
 }

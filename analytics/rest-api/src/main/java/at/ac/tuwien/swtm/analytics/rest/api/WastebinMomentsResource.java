@@ -14,7 +14,7 @@ import java.util.List;
  * on 31.05.2016.
  */
 @Path("wastebinMoments")
-public interface WastebinMomentResource {
+public interface WastebinMomentsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)

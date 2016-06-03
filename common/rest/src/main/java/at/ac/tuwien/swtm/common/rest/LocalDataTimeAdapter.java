@@ -1,4 +1,4 @@
-package at.ac.tuwien.swtm.analytics.rest.api.model;
+package at.ac.tuwien.swtm.common.rest;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;

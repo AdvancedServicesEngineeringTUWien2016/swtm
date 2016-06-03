@@ -144,6 +144,10 @@
         <p:graphicImage name="/images/ajax-loader.gif" />
     </p:dialog>
 
+    <ui:include src="dialogs.xhtml"/>
+
+    <p:growl id="messages" globalOnly="true"/>
+
     <p:layout fullPage="true">
         <p:layoutUnit position="north">
             <h:outputLabel value="Plan"/>
@@ -169,7 +173,7 @@
         </p:layoutUnit>
         <p:layoutUnit position="center">
             <h:form style="height: 100%">
-                <p:commandButton value="Refresh" icon="ui-icon-refresh"
+                <p:commandButton value="Refresh Plan" icon="ui-icon-refresh"
                                  process="@this" update="mapGroup vehicles"
                                  actionListener="#{planView.reloadPlan}"
                                  oncomplete="calcRoute()"/>
@@ -201,6 +205,31 @@
                 </h:panelGroup>
             </h:form>
 
+        </p:layoutUnit>
+        <p:layoutUnit position="south" maxSize="500">
+            <h:form>
+                <p:commandButton value="Refresh Notifications" icon="ui-icon-refresh"
+                                 process="@this" update="@next"
+                                 actionListener="#{planView.reloadNotifications}"/>
+                <p:dataTable value="#{planView.notifications}" var="notification"
+                            >
+                    <p:column headerText="Timestamp" style="width: 200px;">
+                        <h:outputText value="#{notification.timestamp}" converter="localDateTimeConverter"/>
+                    </p:column>
+                    <p:column headerText="Content">
+                        <div>
+                            <span style="display: inline-block; vertical-align: middle; margin-right: 20px;" class="ui-icon ui-icon-alert"/>
+                            <h:outputText value="#{notification.content}"/>
+                        </div>
+                    </p:column>
+                    <p:column headerText="Action" style="width: 100px;">
+                        <p:commandButton icon="ui-icon-gear" rendered="#{notification.notificationType eq 'GPS_CONFLICT' or notification.notificationType eq 'GPS_FAILURE'}"
+                                         actionListener="#{fixedLocationDialogView.load(notification.wastebinId)}"
+                                         oncomplete="PF('fixedLocationDialogVar').show()"
+                                         update="fixedLocationDialog"/>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
         </p:layoutUnit>
     </p:layout>
     

@@ -5,5 +5,6 @@
 
     <entity class="at.ac.tuwien.swtm.analytics.model.Wastebin"/>
     <entity class="at.ac.tuwien.swtm.analytics.model.WastebinMoment"/>
+    <entity class="at.ac.tuwien.swtm.analytics.model.WastebinMomentState"/>
 
 </entity-mappings>

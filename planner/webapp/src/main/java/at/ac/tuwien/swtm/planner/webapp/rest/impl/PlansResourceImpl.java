@@ -39,7 +39,7 @@ public class PlansResourceImpl implements PlansResource {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
 
-        if (planningTask.getSolution().getScore().isFeasible()) {
+        if (planningTask.getSolution() != null && planningTask.getSolution().getScore().isFeasible()) {
             Map<Long, List<Long>> result = planningTask.getSolution().getVehicles().stream()
                     .filter(vehicle -> vehicle.getNextWastebin() != null)
                     .collect(

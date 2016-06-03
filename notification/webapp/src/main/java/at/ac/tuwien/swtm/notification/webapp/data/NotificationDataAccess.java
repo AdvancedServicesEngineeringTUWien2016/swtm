@@ -23,6 +23,8 @@ public class NotificationDataAccess {
     private CriteriaBuilderFactory cbf;
 
     public List<Notification> getNotifications() {
-        return cbf.create(em, Notification.class).getResultList();
+        return cbf.create(em, Notification.class)
+                .orderByDesc("timestamp")
+                .getResultList();
     }
 }

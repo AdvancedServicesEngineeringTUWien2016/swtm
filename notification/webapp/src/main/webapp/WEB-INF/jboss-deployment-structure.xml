@@ -3,6 +3,7 @@
     <deployment>
 
         <dependencies>
+            <module name="deployment.activemq-rar-5.13.3.rar" />
             <module name="javax.jms.api"/>
         </dependencies>
 

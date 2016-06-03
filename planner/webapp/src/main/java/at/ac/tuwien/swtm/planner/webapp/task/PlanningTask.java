@@ -1,9 +1,8 @@
 package at.ac.tuwien.swtm.planner.webapp.task;
 
-import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentResource;
+import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentsResource;
 import at.ac.tuwien.swtm.planner.webapp.config.PlannerConfiguration;
 import at.ac.tuwien.swtm.resources.rest.api.VehiclesResource;
-import com.google.appengine.repackaged.org.joda.time.ReadableInstant;
 import com.google.maps.DistanceMatrixApi;
 import com.google.maps.DistanceMatrixApiRequest;
 import com.google.maps.GeoApiContext;
@@ -39,7 +38,7 @@ public class PlanningTask implements Runnable {
     private VehiclesResource vehiclesResource;
 
     @Inject
-    private WastebinMomentResource wastebinMomentResource;
+    private WastebinMomentsResource wastebinMomentsResource;
 
     private TransportationPlan solution;
 
@@ -47,7 +46,10 @@ public class PlanningTask implements Runnable {
     public void run() {
         Solver<TransportationPlan> solver = solverFactory.buildSolver();
 
-        solution = solver.solve(getProblem());
+        TransportationPlan problem = getProblem();
+        if (problem != null) {
+            solution = solver.solve(problem);
+        }
     }
 
     public TransportationPlan getSolution() {
@@ -62,14 +64,18 @@ public class PlanningTask implements Runnable {
                 .map(Vehicle::fromVehicleRepresentation)
                 .collect(Collectors.toList());
 
-        List<Wastebin> wastebins = wastebinMomentResource.getLatestMoments().stream()
+        List<Wastebin> wastebins = wastebinMomentsResource.getLatestMoments().stream()
                 .map(Wastebin::fromWastebinRepresentation)
                 .collect(Collectors.toList());
 
-        // TODO: only fetch matrix when wastebin locations change or vehicle locations change or if either is added
-        if (cachedDistanceMatrix == null) {
-            cachedDistanceMatrix = getDistanceMatrix(vehicles, wastebins);
+        if (vehicles.isEmpty() || wastebins.isEmpty()) {
+            return null;
         }
+
+        // TODO: only fetch matrix when wastebin locations change or vehicle locations change or if either is added
+//        if (cachedDistanceMatrix == null) {
+            cachedDistanceMatrix = getDistanceMatrix(vehicles, wastebins);
+//        }
 
         Map<Object, Map<Object, DistanceMatrixElement>> objectDistances = new HashMap<>();
         for (int i = 0; i < vehicles.size(); i++) {

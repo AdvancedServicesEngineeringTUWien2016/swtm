@@ -4,7 +4,10 @@ import at.ac.tuwien.swtm.common.model.BaseEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 /**
  * Created
@@ -14,7 +17,31 @@ import javax.validation.constraints.NotNull;
 @Entity
 public class Notification extends BaseEntity<Long> {
 
+    private NotificationType notificationType;
+    private Long wastebinId;
     private String content;
+    private LocalDateTime timestamp;
+
+    @NotNull
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
+    }
+
+    @NotNull
+    @Column(nullable = false)
+    public Long getWastebinId() {
+        return wastebinId;
+    }
+
+    public void setWastebinId(Long wastebinId) {
+        this.wastebinId = wastebinId;
+    }
 
     @NotNull
     @Column(nullable = false)
@@ -25,4 +52,15 @@ public class Notification extends BaseEntity<Long> {
     public void setContent(String content) {
         this.content = content;
     }
+
+    @NotNull
+    @Column(nullable = false)
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
 }

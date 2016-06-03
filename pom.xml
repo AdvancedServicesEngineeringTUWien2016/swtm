@@ -29,6 +29,7 @@
         <version.camel>2.17.0</version.camel>
         <version.primefaces>5.3</version.primefaces>
         <version.deltaspike>1.6.1</version.deltaspike>
+        <version.activemq>5.13.2</version.activemq>
 
         <!-- **************** -->
         <!-- Plugins versions -->
@@ -176,6 +177,7 @@
             </dependency>
 
             <!-- Primefaces -->
+
             <dependency>
                 <groupId>org.primefaces</groupId>
                 <artifactId>primefaces</artifactId>
@@ -183,10 +185,20 @@
             </dependency>
 
             <!-- Deltaspike -->
+
             <dependency>
                 <groupId>org.apache.deltaspike.modules</groupId>
                 <artifactId>deltaspike-jsf-module-impl</artifactId>
                 <version>${version.deltaspike}</version>
+            </dependency>
+
+            <!-- ActiveMQ -->
+
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${version.activemq}</version>
+                <scope>provided</scope>
             </dependency>
 
         </dependencies>

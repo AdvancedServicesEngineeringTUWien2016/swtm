@@ -1,31 +1,19 @@
 package at.ac.tuwien.swtm.analytics.event;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 /**
  * Created
  * by Moritz Becker (moritz.becker@gmx.at)
  * on 29.05.2016.
  */
-public class SensorFailure {
+public class SensorFailure extends AbstractSensorFailure {
 
-    private Long wastebinId;
-    private String wastebinName;
-    private SensorType sensorType;
+    private static final long serialVersionUID = 443944223386097065L;
 
-    public SensorFailure(Long wastebinId, String wastebinName, SensorType sensorType) {
-        this.wastebinId = wastebinId;
-        this.wastebinName = wastebinName;
-        this.sensorType = sensorType;
+    public SensorFailure(SensorType sensorType, Long wastebinId, String wastebinName, LocalDateTime timestamp, LocalDateTime lastValidMomentTimestamp) {
+        super(sensorType, wastebinId, wastebinName, timestamp, lastValidMomentTimestamp);
     }
 
-    public Long getWastebinId() {
-        return wastebinId;
-    }
-
-    public String getWastebinName() {
-        return wastebinName;
-    }
-
-    public SensorType getSensorType() {
-        return sensorType;
-    }
 }

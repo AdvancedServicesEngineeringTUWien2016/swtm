@@ -4,6 +4,19 @@
    .. Sensor failure
    .. GPS conflict
  . Notification actions:
-   .. Set/remove fixed location for wastebin
+   .. Set/remove fixed location for wastebinMoment
  . Hide routes
  . Improve planning
+
+
+# Run it
+
+Start Wildfly with
+
+System properties:
+
+  -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.util,java.lang,java.math,java.time,at.ac.tuwien.swtm"
+
+Environment variables:
+
+  GOOGLE_MAPS_API_KEY=<direction-matrix-api-key>

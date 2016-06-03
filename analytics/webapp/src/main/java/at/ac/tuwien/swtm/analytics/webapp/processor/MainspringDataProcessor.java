@@ -6,7 +6,6 @@ import at.ac.tuwien.swtm.analytics.model.WastebinMoment;
 import at.ac.tuwien.swtm.analytics.webapp.constant.SensorConstants;
 import at.ac.tuwien.swtm.analytics.webapp.service.WastebinDataService;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;

@@ -2,6 +2,8 @@ package at.ac.tuwien.swtm.notification.webapp.consumer;
 
 import at.ac.tuwien.swtm.analytics.event.SensorFailure;
 import at.ac.tuwien.swtm.notification.webapp.service.NotificationService;
+import org.apache.activemq.command.ActiveMQMessage;
+import org.apache.activemq.command.ActiveMQObjectMessage;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -32,9 +34,9 @@ public class SensorFailureConsumer implements MessageListener {
     public void onMessage(Message message) {
         try {
             LOG.info("Received sensor failure message " + message.getJMSMessageID());
-            if (message instanceof ObjectMessage) {
-                SensorFailure sensorFailure = (SensorFailure) ((ObjectMessage) message).getObject();
-                notificationService.createSensorFailureNotification(sensorFailure.getWastebinId(), sensorFailure.getSensorType());
+            if (message instanceof ActiveMQObjectMessage) {
+                SensorFailure sensorFailure = (SensorFailure) ((ActiveMQObjectMessage) message).getObject();
+                notificationService.createSensorFailureNotification(sensorFailure);
             }
         } catch(JMSException e) {
             LOG.log(Level.SEVERE, null, e);

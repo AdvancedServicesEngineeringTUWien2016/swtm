@@ -1,7 +1,7 @@
 package at.ac.tuwien.swtm.analytics.webapp.rest.impl;
 
 import at.ac.tuwien.swtm.analytics.model.WastebinMoment;
-import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentResource;
+import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentsResource;
 import at.ac.tuwien.swtm.analytics.rest.api.model.WastebinMomentRepresentation;
 import at.ac.tuwien.swtm.analytics.webapp.data.WastebinDataAccess;
 
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * by Moritz Becker (moritz.becker@gmx.at)
  * on 31.05.2016.
  */
-public class WastebinMomentResourceImpl implements WastebinMomentResource {
+public class WastebinMomentsResourceImpl implements WastebinMomentsResource {
 
     @Inject
     private WastebinDataAccess wastebinDataAccess;

@@ -1,5 +1,7 @@
 package at.ac.tuwien.swtm.analytics.rest.api.model;
 
+import at.ac.tuwien.swtm.common.rest.LocalDataTimeAdapter;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

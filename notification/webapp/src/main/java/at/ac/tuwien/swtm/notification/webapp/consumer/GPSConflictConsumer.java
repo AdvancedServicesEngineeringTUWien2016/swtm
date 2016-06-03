@@ -35,7 +35,7 @@ public class GPSConflictConsumer implements MessageListener {
             LOG.info("Received GPS conflict message " + message.getJMSMessageID());
             if (message instanceof ObjectMessage) {
                 GPSConflict gpsConflict = (GPSConflict) ((ObjectMessage) message).getObject();
-                notificationService.createLocationConflictNotification(gpsConflict.getWastebinId());
+                notificationService.createLocationConflictNotification(gpsConflict);
             }
         } catch(JMSException e) {
             LOG.log(Level.SEVERE, null, e);

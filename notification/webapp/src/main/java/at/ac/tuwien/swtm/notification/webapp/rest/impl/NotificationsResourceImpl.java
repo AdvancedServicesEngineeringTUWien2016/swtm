@@ -7,6 +7,7 @@ import at.ac.tuwien.swtm.notification.webapp.data.NotificationDataAccess;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created
@@ -21,7 +22,15 @@ public class NotificationsResourceImpl implements NotificationsResource {
     @Override
     public List<NotificationRepresentation> getNotifications() {
         List<Notification> notifications = notificationDataAccess.getNotifications();
-        return null;
+        return notifications.stream().map(notification -> {
+            NotificationRepresentation notificationRepresentation = new NotificationRepresentation();
+            notificationRepresentation.setId(notification.getId());
+            notificationRepresentation.setWastebinId(notification.getWastebinId());
+            notificationRepresentation.setNotificationType(notification.getNotificationType());
+            notificationRepresentation.setContent(notification.getContent());
+            notificationRepresentation.setTimestamp(notification.getTimestamp());
+            return notificationRepresentation;
+        }).collect(Collectors.toList());
     }
 
 }

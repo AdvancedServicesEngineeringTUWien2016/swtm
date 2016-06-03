@@ -8,10 +8,7 @@ import at.ac.tuwien.swtm.analytics.mainspring.client.adapter.DeviceDataListAdapt
 import at.ac.tuwien.swtm.analytics.mainspring.client.admin.DevicesResource;
 import at.ac.tuwien.swtm.analytics.mainspring.client.retrieval.RestRetriever;
 import at.ac.tuwien.swtm.analytics.webapp.config.AnalyticsConfiguration;
-import at.ac.tuwien.swtm.analytics.webapp.processor.FillingDegreeValidator;
-import at.ac.tuwien.swtm.analytics.webapp.processor.GPSFailureMitigationProcessor;
-import at.ac.tuwien.swtm.analytics.webapp.processor.MainspringDataProcessor;
-import at.ac.tuwien.swtm.analytics.webapp.processor.PayloadValidator;
+import at.ac.tuwien.swtm.analytics.webapp.processor.*;
 import at.ac.tuwien.swtm.analytics.webapp.service.WastebinDataService;
 import at.ac.tuwien.swtm.common.config.api.CommonConfiguration;
 import io.fabric8.annotations.ServiceName;
@@ -85,9 +82,12 @@ public class CamelRouteConfiguration extends RouteBuilder {
                 .bean(MainspringDataProcessor.class, "process")
                 .split(body())
                 .bean(GPSFailureMitigationProcessor.class, "process")
-                .bean(PayloadValidator.class, "validate")
-                .bean(FillingDegreeValidator.class, "validate")
-                .bean(WastebinDataService.class, "persistWastebinMoment");
+                .bean(WastebinDataService.class, "persistWastebinMoment")
+                .choice().when(simple("${body} != null"))
+                    .bean(GPSValidator.class, "process")
+                    .bean(PayloadValidator.class, "validate")
+                    .bean(FillingDegreeValidator.class, "validate")
+                .endChoice();
 
         from(gpsConflictEventEndpoint)
                 .to("activemq:queue:GPSConflictEventQueue?brokerURL=tcp://localhost:61616");

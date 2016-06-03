@@ -2,8 +2,10 @@ package at.ac.tuwien.swtm.admin.view;
 
 import at.ac.tuwien.swtm.admin.view.model.RouteViewModel;
 import at.ac.tuwien.swtm.admin.view.model.VehicleViewModel;
-import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentResource;
+import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentsResource;
 import at.ac.tuwien.swtm.analytics.rest.api.model.WastebinMomentRepresentation;
+import at.ac.tuwien.swtm.notification.rest.api.NotificationsResource;
+import at.ac.tuwien.swtm.notification.rest.api.model.NotificationRepresentation;
 import at.ac.tuwien.swtm.planner.rest.api.PlansResource;
 import at.ac.tuwien.swtm.planner.rest.api.model.PlanRepresentation;
 import at.ac.tuwien.swtm.resources.rest.api.VehiclesResource;
@@ -44,18 +46,22 @@ public class PlanView implements Serializable {
     private List<RouteViewModel> routes;
     private List<VehicleViewModel> vehicles;
     private List<VehicleViewModel> selectedVehicles;
+    private List<NotificationRepresentation> notifications;
     private Marker selectedMarker;
 
     @Inject
     private PlansResource plansResource;
     @Inject
-    private WastebinMomentResource wastebinMomentResource;
+    private WastebinMomentsResource wastebinMomentsResource;
     @Inject
     private VehiclesResource vehiclesResource;
+    @Inject
+    private NotificationsResource notificationsResource;
 
     @PostConstruct
     public void init() {
         reloadPlan();
+        reloadNotifications();
     }
 
     public Double getCenterLatitude() {
@@ -82,6 +88,10 @@ public class PlanView implements Serializable {
         this.mapModel = mapModel;
     }
 
+    public void reloadNotifications() {
+        notifications = notificationsResource.getNotifications();
+    }
+
     public void reloadPlan() {
         mapModel = new DefaultMapModel();
 
@@ -93,7 +103,7 @@ public class PlanView implements Serializable {
                 .collect(Collectors.toMap(VehicleViewModel::getId, Function.identity()));
         Map<Long, VehicleRepresentation> vehiclesById = vehicles.stream()
                 .collect(Collectors.toMap(VehicleRepresentation::getId, Function.identity()));
-        List<WastebinMomentRepresentation> wastebins = wastebinMomentResource.getLatestMoments();
+        List<WastebinMomentRepresentation> wastebins = wastebinMomentsResource.getLatestMoments();
         Map<Long, WastebinMomentRepresentation> wastbinsById = wastebins.stream()
                 .collect(Collectors.toMap(WastebinMomentRepresentation::getId, Function.identity()));
 
@@ -196,6 +206,10 @@ public class PlanView implements Serializable {
 
     public List<VehicleViewModel> getVehicles() {
         return vehicles;
+    }
+
+    public List<NotificationRepresentation> getNotifications() {
+        return notifications;
     }
 
     private String incrementColor(String baseColor, int step) {

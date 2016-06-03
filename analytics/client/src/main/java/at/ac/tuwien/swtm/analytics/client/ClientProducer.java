@@ -1,6 +1,7 @@
 package at.ac.tuwien.swtm.analytics.client;
 
-import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentResource;
+import at.ac.tuwien.swtm.analytics.rest.api.WastebinMomentsResource;
+import at.ac.tuwien.swtm.analytics.rest.api.WastebinsResource;
 import at.ac.tuwien.swtm.common.config.api.CommonConfiguration;
 import io.fabric8.annotations.ServiceName;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
@@ -29,11 +30,19 @@ public class ClientProducer {
     private CommonConfiguration commonConfig;
 
     @Produces
-    public WastebinMomentResource produceNotificationsClient() {
+    public WastebinMomentsResource produceWastebinMomentsClient() {
         ResteasyWebTarget webTarget = (ResteasyWebTarget) ClientBuilder.newBuilder().build().target(getMainspringUrl());
         return webTarget
                 .register(LoggingClientRequestFilter.class)
-                .proxy(WastebinMomentResource.class);
+                .proxy(WastebinMomentsResource.class);
+    }
+
+    @Produces
+    public WastebinsResource produceWastebinsClient() {
+        ResteasyWebTarget webTarget = (ResteasyWebTarget) ClientBuilder.newBuilder().build().target(getMainspringUrl());
+        return webTarget
+                .register(LoggingClientRequestFilter.class)
+                .proxy(WastebinsResource.class);
     }
 
     private String getMainspringUrl() {
