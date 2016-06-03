@@ -8,15 +8,77 @@
  . Hide routes
  . Improve planning
 
+# Environment Setup
+
+## Google Maps
+
+Get yourself a server API Key for the Google Maps Direction Matrix API.
+Define the following environment variable:
+
+  GOOGLE_MAPS_API_KEY=<direction-matrix-api-key>
+
+## Cassandra
+
+. Download Apache Cassandra 2.1.2 from https://archive.apache.org/dist/cassandra/2.1.2/apache-cassandra-2.1.2-bin.tar.gz
+
+. Unpack the archive
+
+. On Windows: Run `bin/cassandra.bat`
+
+## ActiveMQ
+
+. Download ActiveMQ 5.13.3 from http://activemq.apache.org/activemq-5133-release.html
+
+. Unpack the downloaded archive
+
+. Edit wrapper.conf (e.g. in bin/win64) and add the following line
+
+ wrapper.java.additional.13=-Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.util,java.lang,java.math,java.time,at.ac.tuwien.swtm"
+
+. On Windows: Run the `activemq.bat` located in bin/win32 or bin/win64
+
+
+## JBoss Wildfly
+
+. Download Wildfly 10 from http://download.jboss.org/wildfly/10.0.0.Final/wildfly-10.0.0.Final.zip
+
+. Unpack the archive and set `JBOSS_HOME` environment variable to the unpacked directory
+
+. Download ActiveMQ 5.13.3 resource adapter from http://central.maven.org/maven2/org/apache/activemq/activemq-rar/5.13.3/activemq-rar-5.13.3.rar
+
+. Copy `activemq-rar-5.13.3.rar` to `$JBOSS_HOME/standalone/deployments`
+
+. Download Wildfly-Camel 4.1.0 patch from https://github.com/wildfly-extras/wildfly-camel/archive/4.1.0.zip
+
+. Copy the archive to `$JBOSS_HOME` and unpack it
+
+. Copy the standalone-camel.xml from this repository to `$JBOSS_HOME/standalone/configuration`
+
+## M2M Mainspring
+
+. Download mainspring.ear release 0.9.5 from https://sourceforge.net/projects/m2mlabs/files/
+
+. Copy `mainspring.ear` to `$JBOSS_HOME/standalone/deployments`
+
+# Build it
+
+The build requires Maven.
+
+. Run `mvn package` from the repository root to build the project
 
 # Run it
 
-Start Wildfly with
+Once the project is built, copy the following .war archives to `$JBOSS_HOME/standalone/deployments`:
 
-System properties:
+  . admin-webapp/target/*.war
+  . analytics/webapp/target/*.war
+  . notification/webapp/target/*.war
+  . planner/webapp/target/*.war
+  . resources/webapp/target/*.war
 
-  -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.util,java.lang,java.math,java.time,at.ac.tuwien.swtm"
+Start Wildfly by running `$JBOSS_HOME/bin/standalone.bat -c standalone-camel.xml -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.util,java.lang,java.math,java.time,at.ac.tuwien.swtm"`
 
-Environment variables:
+You should be able to access the following services from your browser:
 
-  GOOGLE_MAPS_API_KEY=<direction-matrix-api-key>
+. Mainspring http://localhost:8080/cs-ws/
+. SWTM Admin UI http://localhost:8080/
