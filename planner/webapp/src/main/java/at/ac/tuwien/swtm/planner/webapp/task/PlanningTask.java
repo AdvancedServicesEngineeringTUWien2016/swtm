@@ -54,6 +54,9 @@ public class PlanningTask implements Runnable {
         return solution;
     }
 
+
+    private static DistanceMatrix cachedDistanceMatrix;
+
     private TransportationPlan getProblem() {
         List<Vehicle> vehicles = vehiclesResource.getVehicles().stream()
                 .map(Vehicle::fromVehicleRepresentation)
@@ -64,14 +67,16 @@ public class PlanningTask implements Runnable {
                 .collect(Collectors.toList());
 
         // TODO: only fetch matrix when wastebin locations change or vehicle locations change or if either is added
-        DistanceMatrix distanceMatrix = getDistanceMatrix(vehicles, wastebins);
+        if (cachedDistanceMatrix == null) {
+            cachedDistanceMatrix = getDistanceMatrix(vehicles, wastebins);
+        }
 
         Map<Object, Map<Object, DistanceMatrixElement>> objectDistances = new HashMap<>();
         for (int i = 0; i < vehicles.size(); i++) {
-            objectDistances.put(vehicles.get(i), toMap(vehicles, wastebins, distanceMatrix.rows[i]));
+            objectDistances.put(vehicles.get(i), toMap(vehicles, wastebins, cachedDistanceMatrix.rows[i]));
         }
         for (int i = 0; i < wastebins.size(); i++) {
-            objectDistances.put(wastebins.get(i), toMap(vehicles, wastebins, distanceMatrix.rows[vehicles.size() + i]));
+            objectDistances.put(wastebins.get(i), toMap(vehicles, wastebins, cachedDistanceMatrix.rows[vehicles.size() + i]));
         }
 
         return new TransportationPlan(wastebins, vehicles, objectDistances);

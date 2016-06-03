@@ -13,6 +13,7 @@ import java.math.BigDecimal;
  * by Moritz Becker (moritz.becker@gmx.at)
  * on 30.05.2016.
  */
+@PlanningEntity(difficultyComparatorClass = WastebinDifficultyComparator.class)
 public class Wastebin implements RouteComponent {
 
     private Long id;
@@ -47,7 +48,6 @@ public class Wastebin implements RouteComponent {
     @Override
     public Vehicle getVehicle() {
         return vehicle;
-//        return previousRouteComponent == null ? null : previousRouteComponent.getVehicle();
     }
 
     public void setVehicle(Vehicle vehicle) {
@@ -121,5 +121,10 @@ public class Wastebin implements RouteComponent {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Wastebin{id=" + id + '}';
     }
 }

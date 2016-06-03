@@ -3,11 +3,10 @@ package at.ac.tuwien.swtm.planner.webapp.rest.impl;
 import at.ac.tuwien.swtm.planner.rest.api.PlansResource;
 import at.ac.tuwien.swtm.planner.rest.api.model.PlanRepresentation;
 import at.ac.tuwien.swtm.planner.webapp.task.PlanningTask;
-import at.ac.tuwien.swtm.planner.webapp.task.Vehicle;
+import at.ac.tuwien.swtm.planner.webapp.task.TransportationPlanScoreCalculator;
 import at.ac.tuwien.swtm.planner.webapp.task.Wastebin;
 
 import javax.annotation.Resource;
-import javax.enterprise.concurrent.ContextService;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -41,9 +40,14 @@ public class PlansResourceImpl implements PlansResource {
         }
 
         if (planningTask.getSolution().getScore().isFeasible()) {
-            Map<Long, List<Long>> result = planningTask.getSolution().getWastebins().stream()
-                    .filter(wastebin -> wastebin.getVehicle() != null)
-                    .collect(Collectors.groupingBy(wastebin -> wastebin.getVehicle().getId(), Collectors.mapping(Wastebin::getId, Collectors.toList())));
+            Map<Long, List<Long>> result = planningTask.getSolution().getVehicles().stream()
+                    .filter(vehicle -> vehicle.getNextWastebin() != null)
+                    .collect(
+                            Collectors.toMap(
+                                vehicle -> vehicle.getId(),
+                                vehicle -> TransportationPlanScoreCalculator.getRoute(vehicle).stream().map(Wastebin::getId).collect(Collectors.toList())
+                            )
+                    );
 
             return new PlanRepresentation(result);
         } else {

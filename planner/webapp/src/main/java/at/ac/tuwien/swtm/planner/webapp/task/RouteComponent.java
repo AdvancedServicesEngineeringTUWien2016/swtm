@@ -11,10 +11,9 @@ import org.optaplanner.core.api.domain.variable.InverseRelationShadowVariable;
 @PlanningEntity
 public interface RouteComponent {
 
-    @InverseRelationShadowVariable(sourceVariableName = "previousRouteComponent")
     public Vehicle getVehicle();
 
-
+    @InverseRelationShadowVariable(sourceVariableName = "previousRouteComponent")
     public Wastebin getNextWastebin();
     public void setNextWastebin(Wastebin nextWastebin);
 

@@ -6,10 +6,7 @@ import org.optaplanner.core.api.score.buildin.bendable.BendableScore;
 import org.optaplanner.core.impl.score.director.easy.EasyScoreCalculator;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,6 +48,10 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
         Set<Wastebin> unassignedWastebins = new HashSet<>(wastebins);
         unassignedWastebins.removeAll(assignedWastebins);
 
+        List<Vehicle> assignedVehicles = transportationPlan.getVehicles().stream()
+                .filter(vehicle -> vehicle.getNextWastebin() != null)
+                .collect(Collectors.toList());
+
         BigDecimal maximumFillingDegree = unassignedWastebins.stream()
                 .map(Wastebin::getFillingDegree)
                 .max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
@@ -59,30 +60,28 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
                 .map(Wastebin::getPayload)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        Map<Vehicle, List<Wastebin>> routes = assignedWastebins.stream()
-                .collect(Collectors.groupingBy(Wastebin::getVehicle));
-
         BigDecimal spareCapacity = BigDecimal.ZERO;
         long routeLengthSum = 0;
-        for (Map.Entry<Vehicle, List<Wastebin>> route : routes.entrySet()) {
-            long routeDuration = aggregateRoute(transportationPlan.getObjectDistances(), route, row -> row.durationInTraffic.inSeconds, (a, b) -> a + b);
-            long routeLength = aggregateRoute(transportationPlan.getObjectDistances(), route, row -> row.distance.inMeters, (a, b) -> a + b);
+        for (Vehicle vehicle : assignedVehicles){
+            List<Wastebin> route = getRoute(vehicle);
+            long routeDuration = aggregateRoute(transportationPlan.getObjectDistances(), vehicle, route, row -> row.durationInTraffic.inSeconds, (a, b) -> a + b);
+            long routeLength = aggregateRoute(transportationPlan.getObjectDistances(), vehicle, route, row -> row.distance.inMeters, (a, b) -> a + b);
             routeLengthSum += routeDuration;
 
-            BigDecimal routePayload = route.getValue().stream()
+            BigDecimal routePayload = route.stream()
                     .map(Wastebin::getPayload)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            if (routeLength > route.getKey().getRange().multiply(BigDecimal.valueOf(1000)).longValue()) {
+            if (routeLength > vehicle.getRange().multiply(BigDecimal.valueOf(1000)).longValue()) {
                 // route is out of range for assigned vehicle
                 hardScore -= 1;
             }
 
-            if (routePayload.compareTo(route.getKey().getCapacity()) > 0) {
+            if (routePayload.compareTo(vehicle.getCapacity()) > 0) {
                 // payload on route is too high for vehicle
                 hardScore -= 1;
             }
-            spareCapacity = spareCapacity.add(route.getKey().getCapacity().subtract(routePayload));
+            spareCapacity = spareCapacity.add(vehicle.getCapacity().subtract(routePayload));
         }
 
         return BendableScore.valueOf(new int[]{ hardScore }, new int[]{
@@ -93,14 +92,24 @@ public class TransportationPlanScoreCalculator implements EasyScoreCalculator<Tr
         });
     }
 
-    private <T> T aggregateRoute(Map<Object, Map<Object, DistanceMatrixElement>> objectDistances, Map.Entry<Vehicle, List<Wastebin>> route, Function<DistanceMatrixElement, T> matrixElementSelector, BinaryOperator<T> combinator) {
-        List<Wastebin> wastebins = route.getValue();
-        T aggregation = matrixElementSelector.apply(objectDistances.get(route.getKey()).get(wastebins.get(0)));
+    public static List<Wastebin> getRoute(Vehicle vehicle) {
+        List<Wastebin> route = new ArrayList<>();
+        Wastebin current = vehicle.getNextWastebin();
+
+        while (current != null) {
+            route.add(current);
+            current = current.getNextWastebin();
+        }
+
+        return route;
+    }
+    private <T> T aggregateRoute(Map<Object, Map<Object, DistanceMatrixElement>> objectDistances, Vehicle vehicle, List<Wastebin> wastebins, Function<DistanceMatrixElement, T> matrixElementSelector, BinaryOperator<T> combinator) {
+        T aggregation = matrixElementSelector.apply(objectDistances.get(vehicle).get(wastebins.get(0)));
 
         for (int i = 0; i < wastebins.size() - 1; i++) {
             aggregation = combinator.apply(aggregation, matrixElementSelector.apply(objectDistances.get(wastebins.get(i)).get(wastebins.get(i + 1))));
         }
-        return combinator.apply(aggregation, matrixElementSelector.apply(objectDistances.get(wastebins.get(wastebins.size() - 1)).get(route.getKey())));
+        return combinator.apply(aggregation, matrixElementSelector.apply(objectDistances.get(wastebins.get(wastebins.size() - 1)).get(vehicle)));
     }
 
 }

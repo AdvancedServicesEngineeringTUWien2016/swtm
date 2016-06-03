@@ -101,4 +101,9 @@ public class Vehicle implements RouteComponent {
     public Vehicle getVehicle() {
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Vehicle{id=" + id + '}';
+    }
 }

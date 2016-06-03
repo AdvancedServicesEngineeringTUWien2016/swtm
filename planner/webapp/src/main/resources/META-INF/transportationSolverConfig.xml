@@ -13,7 +13,90 @@
 
     <!-- Optimization algorithms configuration -->
     <termination>
-        <secondsSpentLimit>30</secondsSpentLimit>
-        <unimprovedMillisecondsSpentLimit>10000</unimprovedMillisecondsSpentLimit>
+        <!--<minutesSpentLimit>5</minutesSpentLimit>-->
+        <!--<secondsSpentLimit>30</secondsSpentLimit>-->
+        <unimprovedMillisecondsSpentLimit>5000</unimprovedMillisecondsSpentLimit>
     </termination>
+
+    <constructionHeuristic>
+        <constructionHeuristicType>FIRST_FIT_DECREASING</constructionHeuristicType>
+    </constructionHeuristic>
+    <localSearch>
+        <!--<localSearchType>LATE_ACCEPTANCE</localSearchType>-->
+
+        <unionMoveSelector>
+            <changeMoveSelector>
+                <entitySelector>
+                    <entityClass>at.ac.tuwien.swtm.planner.webapp.task.Wastebin</entityClass>
+                </entitySelector>
+            </changeMoveSelector>
+
+            <swapMoveSelector>
+                <entitySelector>
+                    <entityClass>at.ac.tuwien.swtm.planner.webapp.task.Wastebin</entityClass>
+                </entitySelector>
+            </swapMoveSelector>
+
+            <subChainSwapMoveSelector>
+                <entityClass>at.ac.tuwien.swtm.planner.webapp.task.Wastebin</entityClass>
+                <subChainSelector>
+                    <valueSelector>
+                        <variableName>previousRouteComponent</variableName>
+                    </valueSelector>
+                </subChainSelector>
+                <selectReversingMoveToo>false</selectReversingMoveToo>
+            </subChainSwapMoveSelector>
+
+            <!--<moveListFactory>-->
+                <!--<moveListFactoryClass>at.ac.tuwien.swtm.planner.webapp.task.CustomMoveListFactory</moveListFactoryClass>-->
+            <!--</moveListFactory>-->
+
+            <!--<cartesianProductMoveSelector>-->
+                <!--<changeMoveSelector>-->
+                    <!--<entitySelector>-->
+                        <!--<entityClass>at.ac.tuwien.swtm.planner.webapp.task.Wastebin</entityClass>-->
+                    <!--</entitySelector>-->
+                <!--</changeMoveSelector>-->
+                <!--<changeMoveSelector>-->
+                    <!--<entitySelector>-->
+                        <!--<entityClass>at.ac.tuwien.swtm.planner.webapp.task.Wastebin</entityClass>-->
+                    <!--</entitySelector>-->
+                <!--</changeMoveSelector>-->
+                <!--<fixedProbabilityWeight>1.5</fixedProbabilityWeight>-->
+            <!--</cartesianProductMoveSelector>-->
+
+            <!--<cartesianProductMoveSelector>-->
+                <!--<subChainChangeMoveSelector>-->
+                    <!--<entityClass>at.ac.tuwien.swtm.planner.webapp.task.Wastebin</entityClass>-->
+                    <!--<subChainSelector>-->
+                        <!--<valueSelector>-->
+                            <!--<variableName>previousRouteComponent</variableName>-->
+                        <!--</valueSelector>-->
+                    <!--</subChainSelector>-->
+                    <!--<valueSelector>-->
+                        <!--<variableName>previousRouteComponent</variableName>-->
+                    <!--</valueSelector>-->
+                    <!--<selectReversingMoveToo>false</selectReversingMoveToo>-->
+                <!--</subChainChangeMoveSelector>-->
+                <!--<subChainChangeMoveSelector>-->
+                    <!--<entityClass>at.ac.tuwien.swtm.planner.webapp.task.Wastebin</entityClass>-->
+                    <!--<subChainSelector>-->
+                        <!--<valueSelector>-->
+                            <!--<variableName>previousRouteComponent</variableName>-->
+                        <!--</valueSelector>-->
+                    <!--</subChainSelector>-->
+                    <!--<valueSelector>-->
+                        <!--<variableName>previousRouteComponent</variableName>-->
+                    <!--</valueSelector>-->
+                    <!--<selectReversingMoveToo>false</selectReversingMoveToo>-->
+                <!--</subChainChangeMoveSelector>-->
+                <!--<fixedProbabilityWeight>1.5</fixedProbabilityWeight>-->
+            <!--</cartesianProductMoveSelector>-->
+        </unionMoveSelector>
+
+        <!--<forager>-->
+            <!--<acceptedCountLimit>1</acceptedCountLimit>-->
+        <!--</forager>-->
+    </localSearch>
+
 </solver>
