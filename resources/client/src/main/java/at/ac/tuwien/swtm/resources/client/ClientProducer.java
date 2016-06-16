@@ -2,10 +2,8 @@ package at.ac.tuwien.swtm.resources.client;
 
 import at.ac.tuwien.swtm.common.config.api.CommonConfiguration;
 import at.ac.tuwien.swtm.resources.rest.api.VehiclesResource;
-import io.fabric8.annotations.ServiceName;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
-import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
@@ -22,29 +20,25 @@ import java.util.logging.Logger;
 public class ClientProducer {
 
     @Inject
-    @ServiceName("resources-service")
-    private Instance<String> mainspringUrl;
-
-    @Inject
     private CommonConfiguration commonConfig;
 
     @Produces
     public VehiclesResource produceVehiclesClient() {
-        ResteasyWebTarget webTarget = (ResteasyWebTarget) ClientBuilder.newBuilder().build().target(getMainspringUrl());
+        ResteasyWebTarget webTarget = (ResteasyWebTarget) ClientBuilder.newBuilder().build().target(getResourcesUrl());
         return webTarget
                 .register(LoggingClientRequestFilter.class)
                 .proxy(VehiclesResource.class);
     }
 
-    private String getMainspringUrl() {
-        return getEffectiveUrl(mainspringUrl, "resources-webapp/");
+    private String getResourcesUrl() {
+        return getEffectiveUrl("http://resources-service:8080", "resources-webapp/");
     }
 
-    private String getEffectiveUrl(Instance<String> serviceUrl, String contextRoot) {
+    private String getEffectiveUrl(String serviceUrl, String contextRoot) {
         if ("local".equals(commonConfig.getStage())) {
             return "http://localhost:8080/" + contextRoot;
         } else {
-            return serviceUrl.get() + "/" + contextRoot;
+            return serviceUrl + "/" + contextRoot;
         }
     }
 

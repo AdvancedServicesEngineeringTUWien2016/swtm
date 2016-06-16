@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cassandra
+  labels:
+    app: cassandra
+spec:
+  containers:
+  - name: cassandra
+    image: cassandra:2.1.2
+    imagePullPolicy: Never
+    ports:
+    - containerPort: 9160
+    - containerPort: 9042
+    volumeMounts:
+    - mountPath: /var/lib/cassandra
+      name: cassandra-volume
+  volumes:
+    - name: cassandra-volume
+      emptyDir: {}

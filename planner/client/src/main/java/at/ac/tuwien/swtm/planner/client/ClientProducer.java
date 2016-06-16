@@ -2,10 +2,8 @@ package at.ac.tuwien.swtm.planner.client;
 
 import at.ac.tuwien.swtm.common.config.api.CommonConfiguration;
 import at.ac.tuwien.swtm.planner.rest.api.PlansResource;
-import io.fabric8.annotations.ServiceName;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
-import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.ws.rs.client.ClientBuilder;
@@ -22,29 +20,25 @@ import java.util.logging.Logger;
 public class ClientProducer {
 
     @Inject
-    @ServiceName("planner-service")
-    private Instance<String> mainspringUrl;
-
-    @Inject
     private CommonConfiguration commonConfig;
 
     @Produces
     public PlansResource producePlannerClient() {
-        ResteasyWebTarget webTarget = (ResteasyWebTarget) ClientBuilder.newBuilder().build().target(getMainspringUrl());
+        ResteasyWebTarget webTarget = (ResteasyWebTarget) ClientBuilder.newBuilder().build().target(getPlannerUrl());
         return webTarget
                 .register(LoggingClientRequestFilter.class)
                 .proxy(PlansResource.class);
     }
 
-    private String getMainspringUrl() {
-        return getEffectiveUrl(mainspringUrl, "planner-webapp/");
+    private String getPlannerUrl() {
+        return getEffectiveUrl("http://planner-service:8080", "planner-webapp/");
     }
 
-    private String getEffectiveUrl(Instance<String> serviceUrl, String contextRoot) {
+    private String getEffectiveUrl(String serviceUrl, String contextRoot) {
         if ("local".equals(commonConfig.getStage())) {
             return "http://localhost:8080/" + contextRoot;
         } else {
-            return serviceUrl.get() + "/" + contextRoot;
+            return serviceUrl + "/" + contextRoot;
         }
     }
 

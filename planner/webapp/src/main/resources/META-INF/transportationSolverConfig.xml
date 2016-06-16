@@ -3,6 +3,8 @@
     <!-- Domain model configuration -->
     <scanAnnotatedClasses/>
 
+    <environmentMode>FULL_ASSERT</environmentMode>
+
     <!-- Score configuration -->
     <scoreDirectorFactory>
         <scoreDefinitionType>BENDABLE</scoreDefinitionType>

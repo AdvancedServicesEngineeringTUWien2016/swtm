@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: planner
+  labels:
+    app: planner
+spec:
+  containers:
+  - name: planner
+    image: planner
+    imagePullPolicy: Never
+    env:
+    - name: SWTM_STAGE
+      value: prod
+    - name: GOOGLE_MAPS_API_KEY
+      valueFrom:
+        secretKeyRef:
+            name: maps.google.com
+            key: apikey
+    ports:
+    - containerPort: 8080

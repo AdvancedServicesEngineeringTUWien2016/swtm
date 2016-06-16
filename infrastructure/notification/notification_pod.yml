@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: notification
+  labels:
+    app: notification
+spec:
+  containers:
+  - name: notification
+    image: notification
+    imagePullPolicy: Never
+    env:
+    - name: JAVA_OPTS
+      value: -DschemaGen=create-drop -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.util,java.lang,java.math,java.time,at.ac.tuwien.swtm"
+    - name: SWTM_STAGE
+      value: prod
+    ports:
+    - containerPort: 8080

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mainspring-service
+spec:
+  selector:
+    app: mainspring
+  ports:
+  - name: mainspring-http
+    protocol: TCP
+    port: 8081
+    nodePort: 0

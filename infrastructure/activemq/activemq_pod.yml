@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: activemq
+  labels:
+    app: activemq
+spec:
+  containers:
+  - name: activemq
+    image: webcenter/activemq:5.13.1
+    env:
+    - name: ACTIVEMQ_OPTS
+      value: -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.util,java.lang,java.math,java.time,at.ac.tuwien.swtm"
+    ports:
+    - containerPort: 8161
+    - containerPort: 61616
+    - containerPort: 5672
+    - containerPort: 61613
+    - containerPort: 1883
+    - containerPort: 61614
+    volumeMounts:
+    - mountPath: /data/activemq
+      name: activemq-data-volume
+    volumeMounts:
+    - mountPath: /var/log/activemq
+      name: activemq-log-volume
+  volumes:
+    - name: activemq-data-volume
+      emptyDir: {}
+    - name: activemq-log-volume
+      emptyDir: {}

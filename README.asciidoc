@@ -1,13 +1,3 @@
-# TODOS
-
- . Notification display:
-   .. Sensor failure
-   .. GPS conflict
- . Notification actions:
-   .. Set/remove fixed location for wastebinMoment
- . Hide routes
- . Improve planning
-
 # Environment Setup
 
 ## Google Maps
@@ -15,7 +5,9 @@
 Get yourself a server API Key for the Google Maps Direction Matrix API.
 Define the following environment variable:
 
-  GOOGLE_MAPS_API_KEY=<direction-matrix-api-key>
+  export set GOOGLE_MAPS_API_KEY=<direction-matrix-api-key>
+
+After that, run `./manage.sh createSecrets` (only required for Kubernetes)
 
 ## Cassandra
 
@@ -60,6 +52,18 @@ Define the following environment variable:
 
 . Copy `mainspring.ear` to `$JBOSS_HOME/standalone/deployments`
 
+Configure sensor simulation:
+
+. Create sensor model `wastebin-sensor-model` with the following attributes:
+
+.. `fillingDegree` - Number
+.. `location` - GpsData
+.. `payload` - Number
+
+. Create device model `wastebin-sensor-device-model` and add a sensor named `wastebin-sensor` with the `wastebin-sensor-model`
+. Create devices with the `wastebin-sensor-device-model`
+. Configure the simulation of the devices
+
 # Build it
 
 The build requires Maven.
@@ -82,3 +86,9 @@ You should be able to access the following services from your browser:
 
 . Mainspring http://localhost:8080/cs-ws/
 . SWTM Admin UI http://localhost:8080/
+
+# Kubernetes / Docker Machine
+
+The following port forwarding is required:
+
+   docker-machine ssh default -L8081:<mainspring-cluster-ip>:8081 -L8080:<admin-webapp-cluster-ip>:8080

@@ -36,14 +36,17 @@ public class MainspringDataProcessor {
             Wastebin wastebin = wastebinDataService.getOrCreateWastebin(deviceName);
             wastebin.setName(deviceName);
 
-            WastebinMoment wastebinMoment = new WastebinMoment();
-            wastebinMoment.setWastebin(wastebin);
-            wastebinMoments.add(wastebinMoment);
+
 
             Optional<SensorDataAdapter> sensorDataAdapter = deviceDataAdapter.getSensors().stream().filter(adapter -> SensorConstants.WASTEBIN_SENSOR_NAME.equals(adapter.getName())).findAny();
             if (sensorDataAdapter.isPresent() && !sensorDataAdapter.get().getAttributes().isEmpty()) {
+                WastebinMoment wastebinMoment = new WastebinMoment();
+                wastebinMoment.setWastebin(wastebin);
+
+                boolean hasData = false;
                 for (AttributeDataAdapter attributeDataAdapter : sensorDataAdapter.get().getAttributes()) {
                     if (!attributeDataAdapter.getMoments().isEmpty()) {
+                        hasData = true;
                         MomentAdapter moment = attributeDataAdapter.getMoments().get(0);
                         wastebinMoment.setTimestamp(LocalDateTime.parse(moment.getTimestamp(), formatter));
                         if (SensorConstants.FILLING_DEGREE_NAME.equals(attributeDataAdapter.getName())) {
@@ -65,6 +68,9 @@ public class MainspringDataProcessor {
 
                         }
                     }
+                }
+                if (hasData) {
+                    wastebinMoments.add(wastebinMoment);
                 }
             }
         }

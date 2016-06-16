@@ -166,6 +166,12 @@
                 <version>${version.camel}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-camel</artifactId>
+                <version>${version.activemq}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!-- Resteasy dependencies -->
 

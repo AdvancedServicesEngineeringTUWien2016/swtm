@@ -2,7 +2,6 @@ package at.ac.tuwien.swtm.analytics.webapp;
 
 import at.ac.tuwien.swtm.analytics.event.GPSConflict;
 import at.ac.tuwien.swtm.analytics.event.SensorFailure;
-import at.ac.tuwien.swtm.analytics.mainspring.client.ClientProducer;
 import at.ac.tuwien.swtm.analytics.mainspring.client.adapter.DeviceDataAdapter;
 import at.ac.tuwien.swtm.analytics.mainspring.client.adapter.DeviceDataListAdapterExt;
 import at.ac.tuwien.swtm.analytics.mainspring.client.admin.DevicesResource;
@@ -11,7 +10,6 @@ import at.ac.tuwien.swtm.analytics.webapp.config.AnalyticsConfiguration;
 import at.ac.tuwien.swtm.analytics.webapp.processor.*;
 import at.ac.tuwien.swtm.analytics.webapp.service.WastebinDataService;
 import at.ac.tuwien.swtm.common.config.api.CommonConfiguration;
-import io.fabric8.annotations.ServiceName;
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.Message;
@@ -24,13 +22,11 @@ import org.apache.cxf.jaxrs.impl.UriInfoImpl;
 
 import javax.ejb.Startup;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import java.io.IOException;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static org.apache.activemq.camel.component.ActiveMQComponent.activeMQComponent;
 
 /**
  * Created
@@ -41,10 +37,6 @@ import java.util.stream.Collectors;
 @Startup
 @ContextName("analytics-context")
 public class CamelRouteConfiguration extends RouteBuilder {
-
-    @Inject
-    @ServiceName("mainspring-service")
-    private Instance<String> mainspringUrl;
 
     @Inject
     private CommonConfiguration commonConfig;
@@ -60,14 +52,17 @@ public class CamelRouteConfiguration extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-//        getContext().setTracing(true);
+        final boolean enableTracing = false;
+        getContext().setTracing(enableTracing);
+
+        getContext().addComponent("activemq",  activeMQComponent("tcp://" + getActiveMqUrl()));
 
         from("timer://sensorFetch?fixedRate=true&period=5s")
                 .setExchangePattern(ExchangePattern.InOut)
                 .setHeader(CxfConstants.OPERATION_NAME, constant("get"))
                 .setHeader(Exchange.ACCEPT_CONTENT_TYPE, constant("application/xml"))
                 .setBody(constant(new Object[]{ analyticsConfiguration.getMainspringApiKey(), "", "", "15", new UriInfoImpl(null, null) }))
-                .to("cxfrs://" + getMainspringUrl() + "?resourceClasses=" + DevicesResource.class.getName() + "&httpClientAPI=false"/*&loggingFeatureEnabled=true"*/)
+                .to("cxfrs://" + getMainspringUrl() + "?resourceClasses=" + DevicesResource.class.getName() + "&httpClientAPI=false&loggingFeatureEnabled=" + enableTracing)
                 .process(new Processor() {
                     @Override
                     public void process(Exchange exchange) throws Exception {
@@ -78,7 +73,7 @@ public class CamelRouteConfiguration extends RouteBuilder {
                         in.setBody(new Object[]{ analyticsConfiguration.getMainspringApiKey(), deviceNames, new UriInfoImpl(null, null), "2014-01-01 01:00:00.000", "3000-01-01 01:00:00.000", "desc", "1", "false" });
                     }
                 })
-                .to("cxfrs://" + getMainspringUrl() + "?resourceClasses=" + RestRetriever.class.getName() + "&httpClientAPI=false"/*&loggingFeatureEnabled=true"*/)
+                .to("cxfrs://" + getMainspringUrl() + "?resourceClasses=" + RestRetriever.class.getName() + "&httpClientAPI=false&loggingFeatureEnabled=" + enableTracing)
                 .bean(MainspringDataProcessor.class, "process")
                 .split(body())
                 .bean(GPSFailureMitigationProcessor.class, "process")
@@ -90,31 +85,30 @@ public class CamelRouteConfiguration extends RouteBuilder {
                 .endChoice();
 
         from(gpsConflictEventEndpoint)
-                .to("activemq:queue:GPSConflictEventQueue?brokerURL=tcp://localhost:61616");
+                .to("activemq:queue:GPSConflictEventQueue?username=admin&password=admin");
 
         from(sensorFailureEventEndpoint)
-                .to("activemq:queue:SensorFailureEventQueue?brokerURL=tcp://localhost:61616");
+                .to("activemq:queue:SensorFailureEventQueue?username=admin&password=admin");
     }
 
     private String getMainspringUrl() {
-        return getEffectiveUrl(mainspringUrl, "cs-ws/resources/");
+        return getEffectiveUrl("http://mainspring-service:8081", "cs-ws/resources/");
     }
 
-    private String getEffectiveUrl(Instance<String> serviceUrl, String contextRoot) {
+    private String getActiveMqUrl() {
+        if ("local".equals(commonConfig.getStage())) {
+            return "localhost:61616";
+        } else {
+            return "activemq-service:61616";
+        }
+    }
+
+    private String getEffectiveUrl(String serviceUrl, String contextRoot) {
         if ("local".equals(commonConfig.getStage())) {
             return "http://localhost:8080/" + contextRoot;
         } else {
-            return serviceUrl.get() + "/" + contextRoot;
+            return serviceUrl + "/" + contextRoot;
         }
     }
 
-    public static class LoggingClientRequestFilter implements ClientRequestFilter {
-        private static final Logger LOG = Logger.getLogger(ClientProducer.LoggingClientRequestFilter.class.getName());
-
-        @Override
-        public void filter(ClientRequestContext requestContext) throws IOException {
-            LOG.info(requestContext.getUri().toString());
-        }
-
-    }
 }
