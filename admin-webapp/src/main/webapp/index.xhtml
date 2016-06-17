@@ -119,10 +119,12 @@
                 var options = event.target.options;
                 var map = PF('gmap').getMap();
                 for (var i = 0; i < options.length; i++) {
-                    if (options[i].selected) {
-                        polylines[options[i].value].setMap(map);
-                    } else {
-                        polylines[options[i].value].setMap(null);
+                    if (polylines[options[i].value]) {
+                        if (options[i].selected) {
+                            polylines[options[i].value].setMap(map);
+                        } else {
+                            polylines[options[i].value].setMap(null);
+                        }
                     }
                 }
             }
